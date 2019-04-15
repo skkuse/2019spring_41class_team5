@@ -5,7 +5,7 @@
 - 유도영
 - 최지혜
 - 허준범
-- 모하메드 Dahab Shakil
+- 모하메드 Muhammad Shakil Zuhaib (Dahab)
 
 ## Overview
 - 
