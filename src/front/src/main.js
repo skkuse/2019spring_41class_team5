@@ -1,15 +1,21 @@
-// The Vue build version to load with the `import` command
-// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+import 'onsenui/css/onsenui.css'
+import 'onsenui/css/onsen-css-components.css'
+
 import Vue from 'vue'
-import App from './App'
+import $ons from 'vue-onsenui/esm'
+import * as VOns from './vue-onsen-components'
+import App from './App.vue'
 import router from './router'
+import store from './store'
+import './registerServiceWorker'
 
 Vue.config.productionTip = false
 
-/* eslint-disable no-new */
+Vue.use($ons)
+Object.values(VOns).forEach(comp => Vue.component(comp.name, comp))
+
 new Vue({
-  el: '#app',
   router,
-  template: '<App/>',
-  components: { App }
-})
+  store,
+  render: h => h(App)
+}).$mount('#app')

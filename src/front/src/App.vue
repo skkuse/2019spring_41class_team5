@@ -1,54 +1,43 @@
 <template>
-  <div id="app">
-    <header>
-      <span>Vue.js PWA</span>
-    </header>
-    <main>
-      <img src="./assets/logo.png" alt="Vue.js PWA">
-      <router-view></router-view>
-    </main>
-  </div>
+  <v-ons-page id="app">
+    <v-ons-splitter>
+      <v-ons-splitter-side swipeable collapse width="250px"
+        :animation="$ons.platform.isAndroid() ? 'overlay' : 'reveal'"
+        :open.sync="menuIsOpen">
+        <menu-page></menu-page>
+      </v-ons-splitter-side>
+
+      <v-ons-splitter-content>
+        <home-page></home-page>
+      </v-ons-splitter-content>
+    </v-ons-splitter>
+  </v-ons-page>
 </template>
 
 <script>
+import HomePage from './pages/HomePage'
+import MenuPage from './pages/MenuPage'
 export default {
-  name: 'app'
+  name: 'app',
+  computed: {
+    menuIsOpen: {
+      get() {
+        return this.$store.state.splitter.open
+      },
+      set(newValue) {
+        this.$store.commit('splitter/toggle', newValue)
+      }
+    }
+  },
+  components: {
+    HomePage,
+    MenuPage
+  }
 }
 </script>
 
 <style>
-body {
-  margin: 0;
-}
-
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
-
-main {
-  text-align: center;
-  margin-top: 40px;
-}
-
-header {
-  margin: 0;
-  height: 56px;
-  padding: 0 16px 0 24px;
-  background-color: #35495E;
-  color: #ffffff;
-}
-
-header span {
-  display: block;
-  position: relative;
-  font-size: 20px;
-  line-height: 1;
-  letter-spacing: .02em;
-  font-weight: 400;
-  box-sizing: border-box;
-  padding-top: 16px;
+ons-splitter-side[side=left][animation=overlay] {
+  border-right: 1px solid #BBB;
 }
 </style>
