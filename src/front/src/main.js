@@ -1,18 +1,32 @@
-import 'onsenui/css/onsenui.css'
-import 'onsenui/css/onsen-css-components.css'
-
 import Vue from 'vue'
-import $ons from 'vue-onsenui/esm'
-import * as VOns from './vue-onsen-components'
+import Ionic from '@ionic/vue'
+
+// Local Config Import
 import App from './App.vue'
 import router from './router'
 import store from './store'
 import './registerServiceWorker'
 
+// CSS Import
+import '@ionic/core/css/core.css'
+import '@ionic/core/css/ionic.bundle.css'
+import './theme/variables.scss'
+
 Vue.config.productionTip = false
 
-Vue.use($ons)
-Object.values(VOns).forEach(comp => Vue.component(comp.name, comp))
+// Ionic Integration
+Vue.use(Ionic)
+Ionic.for
+
+// Global Filters
+Vue.filter('ordinalize', function (value) {
+  if (!value) return ''
+  let firstValue = value % 10
+  if (firstValue === 1) return value + 'st'
+  if (firstValue === 2) return value + 'nd'
+  if (firstValue === 3) return value + 'rd'
+  else return value + "th"
+})
 
 new Vue({
   router,
