@@ -7,5 +7,9 @@
 - 허준범
 - 모하메드 Muhammad Shakeel Zuhaib (Dahab)
 
+## Project Name:
+- Dealistic
+
 ## Overview
+
 - 
