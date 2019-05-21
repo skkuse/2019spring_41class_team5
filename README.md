@@ -8,10 +8,10 @@
 - 허준범 Junbeom Heo
 - 모하메드 Muhammad Shakeel Zuhaib (Dahab)
 
-## Project Name:
+## Project Name
 - Dealistic
 
-## Brief Summary:
+## Brief Summary
 - Dealistic is a text-analysis based E-commerce progressive app for analyzing customers review and generating a numerical representation of it using Google Natural Language API, MySQL and some Javascript frameworks/libraries
 
 ## Repository Structure
@@ -27,8 +27,9 @@ PROJECT ROOT
         ├─src
         │  ├─assets
         │  ├─components
-        │  └─router
-        └─static
+        │  ├─pages
+        │  └─theme
+        └─public
 
 to be continued..
 ```
