@@ -6,12 +6,7 @@
       </ion-toolbar>
     </ion-header>
     <ion-content>
-      <router-link
-        :to="{ path: 'item-detail/' + item.id }"
-        tag="ion-card"
-        v-for="item in items"
-        :key="item.rank"
-      >
+      <ion-card v-for="item in items" :key="item.rank" @click="handleItemClick(item)">
         <ion-card-header>
           <ion-grid no-padding>
             <ion-row>
@@ -44,26 +39,8 @@
             </ion-row>
           </ion-grid>
         </ion-card-content>
-      </router-link>
+      </ion-card>
     </ion-content>
-    <ion-tab-bar slot="bottom">
-      <ion-tab-button tab="rank">
-        <ion-icon name="ribbon"></ion-icon>
-        <ion-label>Ranking</ion-label>
-      </ion-tab-button>
-      <ion-tab-button tab="recommendation">
-        <ion-icon name="thumbs-up"></ion-icon>
-        <ion-label>Recommendation</ion-label>
-      </ion-tab-button>
-      <ion-tab-button tab="mypage">
-        <ion-icon name="person"></ion-icon>
-        <ion-label>Mypage</ion-label>
-      </ion-tab-button>
-      <ion-tab-button tab="search">
-        <ion-icon name="search"></ion-icon>
-        <ion-label>Search</ion-label>
-      </ion-tab-button>
-    </ion-tab-bar>
   </ion-page>
 </template>
 
@@ -84,6 +61,13 @@ export default {
         }
       ]
     };
+  },
+  methods: {
+    handleItemClick(item) {
+      this.$router.push({
+        path: `ranking/item-detail/${item.id}`
+      })
+    }
   }
 };
 </script>

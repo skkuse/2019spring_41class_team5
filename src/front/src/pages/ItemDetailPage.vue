@@ -1,3 +1,14 @@
+<!--
+    Component: ItemDetailPage
+    Objective: Show specific item detail
+    Author   : Junhyun Kim <junbread@skku.edu>
+    Functions: - [x] View item spec
+               - [x] View item review summary
+               - [ ] View item review details
+               - [ ]Add/Edit/Delete user review
+               - [ ] Dynamic loading for review lists
+    Changelog: 
+-->
 <template>
   <ion-page class="ion-page">
     <ion-header>
@@ -10,7 +21,7 @@
     </ion-header>
     <ion-content>
       <section id="item-detail" margin>
-        <ion-grid no-padding>
+        <ion-grid>
           <ion-row>
             <ion-col size="6">
               <ion-img :src="item.image" />
@@ -21,20 +32,20 @@
                 <span>{{ item.company }}</span>
               </div>
               <ul id="item-specs">
-                <li v-for="spec in item.specs">{{ spec }}</li>
+                <li v-for="(spec, index) in item.specs" :key="index">{{ spec }}</li>
               </ul>
             </ion-col>
           </ion-row>
-          <ion-row align-items-flex-end>
-            <ion-col size="6" no-padding>
+          <ion-row align-items-center>
+            <ion-col size="6">
               <ul id="item-vendors">
-                <li v-for="vendor in item.vendors">
+                <li v-for="(vendor, index) in item.vendors" :key="index">
                   <a :href="vendor.link">{{ vendor.name }}</a>
                 </li>
               </ul>
             </ion-col>
-            <ion-col size="6" no-padding text-right>
-              <ion-button size="small" no-margin>
+            <ion-col size="6" text-right>
+              <ion-button size="small" fill="outline"><!-- TODO toggle bookmark -->
                 <ion-icon name="add" />
                 <span>Add to Bookmark</span>
               </ion-button>
@@ -44,28 +55,28 @@
       </section>
       <section id="review-analysis" margin>
         <h1>Review Analysis</h1>
-        <ion-grid no-padding>
+        <ion-grid>
           <ion-row>
-            <ion-col id="review-score" no-padding align-items-end>
+            <ion-col id="review-score" align-items-end>
                 <h2>{{ item.score | percent(5) }}%</h2>
                 <span>recommended</span>
             </ion-col>
-            <ion-col id="review-score-chart" no-padding>
+            <ion-col id="review-score-chart">
 
             </ion-col>
           </ion-row>
           <ion-row id="review-keywords">
-            <ion-col size="12" no-padding>
+            <ion-col size="12">
               <h2>Most mentioned keywords</h2>
             </ion-col>
-            <ion-col no-padding>
+            <ion-col>
               <ul id="review-keywords-positive" class="review-keywords">
-                <li v-for="keyword in item.keywords" v-if="keyword.type == 'positive'">
+                <li v-for="keyword in item.keywords" :key="" v-if="keyword.type == 'positive'">
                   {{ keyword.name }}
                 </li>
               </ul>
             </ion-col>
-            <ion-col no-padding text-right>
+            <ion-col text-right>
               <ul id="review-keywords-negative" class="review-keywords">
                 <li v-for="keyword in item.keywords" v-if="keyword.type == 'negative'">
                   {{ keyword.name }}
@@ -99,11 +110,11 @@
 </template>
 
 <script>
-const baseURI = "localhost";
 export default {
   name: "item-detail-page",
   data() {
     return {
+      prevRoute: null,
       item: {
         id: 1234,
         rank: 1,
@@ -162,7 +173,7 @@ export default {
   },
   methods: {
     getItem(itemId) {
-      this.$http.get(`${baseURI}/items/${itemId}`).then(result => {
+      this.$http.get(`/items/${itemId}`).then(result => {
         this.item = result.data;
       });
     },
@@ -172,7 +183,7 @@ export default {
       };
 
       this.$http
-        .get(`${baseURI}/reviews`, { params: criteria })
+        .get(`/reviews`, { params: criteria })
         .then(result => {
           this.reviews = result.data;
         });
@@ -182,24 +193,20 @@ export default {
   mounted() {
     // this method should be enabled after backend is configured
     //this.getItem(this.$route.params.id)
+    console.log(this)
+  },
+  beforeRouteEnter(to, from, next) {
+    next(vm => { vm.prevRoute = from})
+  },
+  computed: {
+    isPrevExist() {
+      return this.prevRoute && this.prevRoute.matched.length !== 0
+    }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-
-// Global Style (TODO: move these declarations to global stylesheet)
-a {
-  text-decoration: none;
-  color: var(--ion-color-primary);
-}
-
-ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
 /* Page Global Sytles */
 section h1 {
   font-size: 1.5em;
