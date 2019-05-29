@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 
 //how to connect to data base? this is just an example
+//JPA integration
 @Service
 public class UserService {
 
