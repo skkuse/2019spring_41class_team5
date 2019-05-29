@@ -1,10 +1,23 @@
 package model;
 
+import java.util.List;
+
 public class Review {
 
     String author;
     String content;
     Double rating;
+    String sentiment;
+    List<String> keywords;
+    Double new_rating;
+
+    public String getSentiment() {
+        return sentiment;
+    }
+
+    public void setSentiment(String sentiment) {
+        this.sentiment = sentiment;
+    }
 
     public String getAuthor() {
         return author;
