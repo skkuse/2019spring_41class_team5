@@ -21,7 +21,8 @@ public class ReviewController {
     ReviewService ps;
 
     @RequestMapping(value="/all", produces= MediaType.APPLICATION_JSON_VALUE)
-    public ArrayList<Review> getAll() {
+    public ArrayList<Review> getAll()
+    {
         return ps.getAll();
     }
 

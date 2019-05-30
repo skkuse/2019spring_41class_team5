@@ -1,12 +1,13 @@
 package nlp;
 
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import org.springframework.context.annotation.Bean;
 
 import java.util.Properties;
 
 public class Pipeline {
     private static Properties properties;
-    private static String propertiesName="tokenize";
+    private static String propertiesName="tokenize,ssplit,,parse,sentiment,pos,lemma";
     private static StanfordCoreNLP stanfordCoreNLP;
 
     private Pipeline()
