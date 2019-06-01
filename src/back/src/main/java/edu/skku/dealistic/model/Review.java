@@ -1,8 +1,7 @@
-package model;
+package edu.skku.dealistic.model;
 
 import edu.stanford.nlp.ling.CoreLabel;
 
-import java.util.Collections;
 import java.util.List;
 
 public class Review {
@@ -18,19 +17,16 @@ public class Review {
     String date;
     String reference;
     String importance;
-    List<CoreLabel>keywords;
+    List<CoreLabel> keywords;
 
 
-
-
-
-/*
-    class keyword{
-        String keyword_data;
-        String keyword_sentiment;
-        String keyword_magnitude;
-    }
-*/
+    /*
+        class keyword{
+            String keyword_data;
+            String keyword_sentiment;
+            String keyword_magnitude;
+        }
+    */
     public String getAuthor() {
         return author;
     }
@@ -123,11 +119,9 @@ public class Review {
         return keywords;
     }
 
-    public void setKeywords(List<CoreLabel> coreLabelList)
-    {
-     //  Collections.copy(keywords, coreLabelList);  -> doesn't work
-        for(CoreLabel coreLabel:coreLabelList)
-        {
+    public void setKeywords(List<CoreLabel> coreLabelList) {
+        //  Collections.copy(keywords, coreLabelList);  -> doesn't work
+        for (CoreLabel coreLabel : coreLabelList) {
             System.out.println(coreLabel.originalText());
 
         }

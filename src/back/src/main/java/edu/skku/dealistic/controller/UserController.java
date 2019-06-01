@@ -1,33 +1,33 @@
-package controller;
+package edu.skku.dealistic.controller;
 
+import java.util.ArrayList;
 
-import model.Review;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import service.ReviewService;
 
-import java.util.ArrayList;
+import edu.skku.dealistic.model.User;
+import edu.skku.dealistic.service.UserService;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/reviews")
-public class ReviewController {
+@RequestMapping("/users")
+public class UserController {
 
     @Autowired
-    ReviewService ps;
+    UserService ps;
 
     @RequestMapping(value="/all", produces= MediaType.APPLICATION_JSON_VALUE)
-    public ArrayList<Review> getAll()
-    {
+    public ArrayList<User> getAll() {
         return ps.getAll();
     }
 
-    @RequestMapping(value = "{author}", produces= MediaType.APPLICATION_JSON_VALUE)
-    public Review getUser(@PathVariable("author") String author) {
-        return ps.getReview(author);
+    @RequestMapping(value = "{id}", produces= MediaType.APPLICATION_JSON_VALUE)
+    public User getUser(@PathVariable("id") String id) {
+        return ps.getUser(id);
     }
+
 }

@@ -1,11 +1,11 @@
-package service;
+package edu.skku.dealistic.service;
 
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.CoreSentence;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import model.Review;
-import nlp.Pipeline;
+import edu.skku.dealistic.model.Review;
+import edu.skku.dealistic.nlp.Pipeline;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 public class ReviewService {
     ArrayList<Review> reviews = new ArrayList<Review>();
-    //this is only for testing .. please move this part to "reviewCrawling_Analysis.java" class
+    //this is only for testing .. please move this part to "ReviewCrawlingTask.java" class
     public ReviewService() {
 
         //Once the crawler is made all data will be fetched from there

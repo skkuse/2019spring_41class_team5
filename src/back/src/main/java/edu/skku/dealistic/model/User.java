@@ -1,4 +1,4 @@
-package model;
+package edu.skku.dealistic.model;
 
 //More information about the user can be added
 public class User {

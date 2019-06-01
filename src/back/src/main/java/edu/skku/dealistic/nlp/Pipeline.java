@@ -1,7 +1,6 @@
-package nlp;
+package edu.skku.dealistic.nlp;
 
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import org.springframework.context.annotation.Bean;
 
 import java.util.Properties;
 

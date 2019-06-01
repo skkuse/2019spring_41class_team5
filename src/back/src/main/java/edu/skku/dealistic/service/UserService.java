@@ -1,6 +1,6 @@
-package service;
+package edu.skku.dealistic.service;
 
-import model.User;
+import edu.skku.dealistic.model.User;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
