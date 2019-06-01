@@ -13,3 +13,20 @@ ul {
   padding: 0;
   list-style: none;
 }
+
+div[scroll-x=true], div[scroll-y=true] {
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+div[scroll-x=true] {
+  overflow-x: auto;
+}
+
+div[scroll-y=true] {
+  overflow-y: auto;
+}
