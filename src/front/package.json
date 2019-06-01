@@ -44,12 +44,6 @@
       "parser": "babel-eslint"
     }
   },
-  "vue": {
-    "pwa:": {
-      "appleMobileWebAppCapable": "yes",
-      "appleMobileWebAppStatusBarStye": "black-translucent"
-    }
-  },
   "postcss": {
     "plugins": {
       "autoprefixer": {}
