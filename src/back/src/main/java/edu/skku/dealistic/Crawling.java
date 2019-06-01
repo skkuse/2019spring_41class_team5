@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class Crawling {
 
     private final static String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36";
-    public String result;
+    private String result;
 
     // SSL 우회 등록
     public static void setSSL() throws NoSuchAlgorithmException, KeyManagementException {
@@ -76,7 +76,6 @@ public class Crawling {
 
             Document doc = conn.get();
             result = doc.toString();
-            System.out.println(result);
 
         } catch (IOException e) {
             // Exp : Connection Fail
