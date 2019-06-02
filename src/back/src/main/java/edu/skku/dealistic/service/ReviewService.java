@@ -20,8 +20,8 @@ public class ReviewService {
         //Once the crawler is made all data will be fetched from there
         Review r = new Review();
         r.setAuthor("Dealistic");
-        r.setContent("I hate this product! it has been a total waste of money");
-        r.setOriginal_rating(3.5);
+        r.setContent("I hate this product");
+        r.setOriginalRating(3.5);
 
 
         reviews.add(r);
@@ -44,21 +44,17 @@ public class ReviewService {
                 List<CoreSentence> sentences=coreDocument.sentences();
 
                 review.setKeywords(coreLabelList);
-/*
-      for(CoreLabel coreLabel:coreLabelList)
-        {
-            System.out.println(coreLabel.originalText());
-        }
-        */
-                for(CoreSentence sentence:sentences)
+                review.setSentence(sentences);
+
+               /* for(CoreSentence sentence:sentences)
                 {
                     String Test=sentence.sentiment();
                     System.out.println(Test);
                 }
+*/
 
-
-
-                return review;}
+                return review;
+            }
         }
         return null;
     }

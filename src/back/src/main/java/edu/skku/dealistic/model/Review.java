@@ -1,8 +1,15 @@
 package edu.skku.dealistic.model;
 
+import edu.skku.dealistic.nlp.Pipeline;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.pipeline.CoreDocument;
+import edu.stanford.nlp.pipeline.CoreSentence;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Review {
 
@@ -10,23 +17,36 @@ public class Review {
     String itemID;
     String reviewID;
     String content;
-    Double original_rating;
-    Double new_rating;
-    String sentiment;
+    Double originalRating;
+    Double newRating;
+
     String title;
     String date;
     String reference;
     String importance;
-    List<CoreLabel> keywords;
+    List<String> sentenceSentiments = new ArrayList<>(); //change this to hashmap<String,String> and store the sentence+sentiment
+    Map<String, String> keywords = new HashMap<>();
 
 
-    /*
-        class keyword{
-            String keyword_data;
-            String keyword_sentiment;
-            String keyword_magnitude;
+/*
+    class keyword{
+        String keyword_data;
+        String keyword_sentiment;
+        String keyword_magnitude;
+    }
+*/
+
+    public List<String> getSentence() {
+        return sentenceSentiments;
+    }
+
+    public void setSentence(List<CoreSentence> sentences) {
+        for (CoreSentence sentence : sentences) {
+            String Test = sentence.sentiment();
+            this.sentenceSentiments.add(Test);
         }
-    */
+    }
+
     public String getAuthor() {
         return author;
     }
@@ -59,29 +79,22 @@ public class Review {
         this.content = content;
     }
 
-    public Double getOriginal_rating() {
-        return original_rating;
+    public Double getOriginalRating() {
+        return originalRating;
     }
 
-    public void setOriginal_rating(Double original_rating) {
-        this.original_rating = original_rating;
+    public void setOriginalRating(Double originalRating) {
+        this.originalRating = originalRating;
     }
 
-    public Double getNew_rating() {
-        return new_rating;
+    public Double getNewRating() {
+        return newRating;
     }
 
-    public void setNew_rating(Double new_rating) {
-        this.new_rating = new_rating;
+    public void setNewRating(Double newRating) {
+        this.newRating = newRating;
     }
 
-    public String getSentiment() {
-        return sentiment;
-    }
-
-    public void setSentiment(String sentiment) {
-        this.sentiment = sentiment;
-    }
 
     public String getTitle() {
         return title;
@@ -115,17 +128,24 @@ public class Review {
         this.importance = importance;
     }
 
-    public List<CoreLabel> getKeywords() {
+    public Map<String, String> getKeywords() {
         return keywords;
     }
 
     public void setKeywords(List<CoreLabel> coreLabelList) {
-        //  Collections.copy(keywords, coreLabelList);  -> doesn't work
         for (CoreLabel coreLabel : coreLabelList) {
-            System.out.println(coreLabel.originalText());
-
+            //find setiment of the token/keyword //run analysis on the token
+            String temp = coreLabel.originalText();
+            //corelabel.originaltext()=keyword;
+            StanfordCoreNLP stanfordCoreNLP = Pipeline.getPipeline();
+            //Initializing the analysis document
+            CoreDocument coreDocument = new CoreDocument(temp);
+            stanfordCoreNLP.annotate(coreDocument);
+            List<CoreSentence> sentences = coreDocument.sentences();
+            String keyword_sentiment = null;
+            for (CoreSentence sentence : sentences) {
+                keyword_sentiment = sentence.sentiment();
+            }
         }
-
-
     }
 }
