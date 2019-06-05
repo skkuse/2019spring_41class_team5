@@ -1,9 +1,8 @@
 package edu.skku.dealistic.service;
 
-import edu.skku.dealistic.exception.NoItemReferenceException;
-import edu.skku.dealistic.model.ItemReference;
 import edu.skku.dealistic.model.RawReview;
-import edu.skku.dealistic.model.Reference;
+import edu.skku.dealistic.model.Vendor;
+import edu.skku.dealistic.model.VendorLink;
 import edu.skku.dealistic.task.ReviewCrawlingTask;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -24,29 +23,25 @@ public class CrawlerService {
 
     private static WebDriver driver;
 
-    private static List<Crawler> crawlers;
-
-    private static String driverPath;
+    private static List<Crawler> crawlers = new ArrayList<>();
 
     /**
      * Because the structure of website is different, it is necessary to implement crawling & parsing website differently.<br>
      * This abstract class already provides website connection by selenium.<br>
      * PLEASE INSTALL CORRECT VERSION OF BROWSER ON YOUR MACHINE BEFORE RUN. See /resources/README.md
      */
-    private abstract class Crawler {
-        protected Reference ref;
+    abstract class Crawler {
+        protected Vendor vendor;
 
-        public Crawler(Reference ref) {
-            this.ref = ref;
+        public Crawler(Vendor vendor) {
+            this.vendor = vendor;
         }
 
-        public List<RawReview> doCrawling(ItemReference itemRef) throws NoItemReferenceException {
-            String itemRefId = itemRef.getItemReferenceId(this.ref);
+        public List<RawReview> doCrawling(VendorLink link) {
+            if (!link.getVendor().equals(this.vendor))
+                throw new IllegalArgumentException("Vendor Type is incompatible");
 
-            if (itemRefId.isEmpty())
-                throw new NoItemReferenceException(this.ref);
-
-            driver.get(this.getReviewUrl(itemRefId));
+            driver.get(link.getReviewDetailUrl());
             String pageSource = driver.getPageSource();
             if (pageSource.isEmpty())
                 throw new RuntimeException(); // TODO Make more suitable exception
@@ -54,58 +49,87 @@ public class CrawlerService {
             return parse(pageSource);
         }
 
-        public abstract String getReviewUrl(String itemRefId);
+        public Boolean isCompatible(VendorLink link) {
+            return this.vendor.equals(link.getVendor());
+        }
 
         public abstract List<RawReview> parse(String pageSource);
     }
 
     public CrawlerService() {
-        // Driver Initialization
-        driverPath = getClass().getClassLoader().getResource("chromedriver").getPath();
-        System.setProperty("webdriver.chrome.driver", driverPath);
+        initializeDriver();
+        initializeCrawlers();
+    }
 
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("headless", "window-size=1920x1080", "disable-gpu");
-        driver = new ChromeDriver(options);
+    private void initializeCrawlers() {
+        Vendor amazon = Vendor.builder()
+                .id(1)
+                .name("Amazon")
+                .url("https://amazon.com")
+                .itemDetailPrefix("/dp/")
+                .reviewDetailPrefix("/product-reviews/")
+                .reviewDetailPostfix("reviewerType=all_reviews&sortBy=recent")
+                .pageParam("pageNumber")
+                .build();
 
-        // Crawler Setting
-        crawlers = new ArrayList<>();
-        crawlers.add(new Crawler(new Reference(1, "Amazon", "https://amazon.com")) {
-            @Override
-            public String getReviewUrl(String itemRefId) {
-                return ref.getUrl() + "/product-reviews/" + itemRefId + "/reviewerType=all_reviews";
-            }
+        Vendor bestbuy = Vendor.builder()
+                .id(2)
+                .name("Bestbuy")
+                .url("https://bestbuy.com")
+                .itemDetailPrefix("")
+                .reviewDetailPrefix("")
+                .reviewDetailPostfix("")
+                .pageParam("")
+                .build();
 
+        crawlers.add(new Crawler(amazon) {
             @Override
             public List<RawReview> parse(String pageSource) {
-                System.out.println(pageSource); // TODO Implement parsing
-                return new ArrayList<>();
+                return null;
             }
         });
-        /*crawlers.add(new Crawler("https://ebay.com") {
-            @Override
-            public List<RawReview> doCrawling(ItemReference itemRef) {
 
+        crawlers.add(new Crawler(bestbuy) {
+            @Override
+            public List<RawReview> parse(String pageSource) {
+                return null;
             }
-        });*/
-        // TODO Implement another website, like eBay
+        });
+    }
+
+    private void initializeDriver() {
+        System.setProperty("webdriver.chrome.driver",
+                getClass()
+                        .getClassLoader()
+                        .getResource("chromedriver")
+                        .getPath());
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36");
+        options.setHeadless(true);
+
+        driver = new ChromeDriver(options);
     }
 
     /**
      * Do crawling. iterates with item list and website list.
      *
-     * @param itemReferences Object that includes item id used in our system, and item id used in each websites.
+     * @param vendorLinks Object that includes item id used in our system,
+     *                    and item id used in each websites.
      * @return
      */
-    public List<RawReview> doCrawling(List<ItemReference> itemReferences) {
+    public List<RawReview> doCrawling(List<VendorLink> vendorLinks) {
         List<RawReview> rawReviews = new ArrayList<>();
-        for (Crawler crawler : crawlers) {
-            for (ItemReference ref : itemReferences) {
-                rawReviews.addAll(crawler.doCrawling(ref));
-            }
-        }
+
+        vendorLinks.forEach(link -> crawlers.forEach(crawler -> {
+            if (crawler.isCompatible(link)) rawReviews.addAll(crawler.doCrawling(link));
+        }));
 
         return rawReviews;
+    }
+
+    public static WebDriver getDriver() {
+        return driver;
     }
 }
 

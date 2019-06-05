@@ -1,32 +1,45 @@
 package edu.skku.dealistic.model;
 
-//More information about the user can be added
+import lombok.*;
+
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
-    String ID;
-    String Name;
-    String Passowrd;
 
-    public String getID() {
-        return ID;
-    }
+    @Id
+    @Column(length = 20)
+    private String id;
 
-    public void setID(String ID) {
-        this.ID = ID;
-    }
+    @Column(length = 100, nullable = false)
+    private String name;
 
-    public String getName() {
-        return Name;
-    }
+    @Column(length = 100, nullable = false)
+    private String password;
 
-    public void setName(String name) {
-        Name = name;
-    }
+    @Column(length = 100, nullable = false)
+    private String organization;
 
-    public String getPassowrd() {
-        return Passowrd;
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Authority authority = Authority.USER;
 
-    public void setPassowrd(String passowrd) {
-        Passowrd = passowrd;
-    }
+    @Lob
+    @Column
+    private Byte[] profileImage;
+
+    @OneToMany(
+            targetEntity = Bookmark.class,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    @JoinColumn
+    private List<Bookmark> bookmarks;
+
+    //@OneToMany(targetEntity = Review.class, fetch = FetchType.LAZY)
+    //private List<Review> reviews;
 }
