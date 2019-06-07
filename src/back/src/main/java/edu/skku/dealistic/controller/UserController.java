@@ -1,33 +1,50 @@
 package edu.skku.dealistic.controller;
 
-import java.util.ArrayList;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import edu.skku.dealistic.payload.ApiResponse;
 import edu.skku.dealistic.model.User;
 import edu.skku.dealistic.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
+import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin
+import javax.annotation.security.RolesAllowed;
+import java.util.List;
+
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/users")
+@RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
 
-    @Autowired
-    UserService ps;
+    private final UserService userService;
 
-    @RequestMapping(value="/all", produces= MediaType.APPLICATION_JSON_VALUE)
-    public ArrayList<User> getAll() {
-        return ps.getAll();
+    @GetMapping
+    public List<User> getUsers() {
+        return userService.getUsers();
     }
 
-    @RequestMapping(value = "{id}", produces= MediaType.APPLICATION_JSON_VALUE)
-    public User getUser(@PathVariable("id") String id) {
-        return ps.getUser(id);
+    @PostMapping
+    public User createUser(@RequestBody User user) {
+        return userService.createUser(user);
     }
 
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable String id) {
+        return userService.getUser(id);
+    }
+
+    @PreAuthorize("#id == principal.username or hasAuthority('MANAGER')")
+    @PatchMapping("/{id}")
+    public ApiResponse updateUser(@PathVariable String id, @RequestBody User user) {
+        userService.updateUser(id, user);
+        return ApiResponse.SUCCESS;
+    }
+
+    @PreAuthorize("#id == principal.username or hasAuthority('MANAGER')")
+    @DeleteMapping("/{id}")
+    public ApiResponse deleteUser(@PathVariable String id) {
+        userService.deleteUser(id);
+        return ApiResponse.SUCCESS;
+    }
 }

@@ -1,32 +1,96 @@
 package edu.skku.dealistic.model;
 
-//More information about the user can be added
-public class User {
-    String ID;
-    String Name;
-    String Passowrd;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-    public String getID() {
-        return ID;
+import javax.persistence.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class User implements UserDetails {
+
+    @Id
+    @Column(length = 20)
+    private String id;
+
+    @Column(length = 100, nullable = false)
+    private String name;
+
+    @JsonIgnore
+    @Column(length = 100, nullable = false)
+    private String password;
+
+    @Column(length = 100, nullable = false)
+    private String organization;
+
+    @JsonIgnore
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Authority authority;
+
+    @Lob
+    @Column
+    private Byte[] profileImage;
+
+    @JsonIgnore
+    @OneToMany(
+            targetEntity = Bookmark.class,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    @JoinColumn
+    private List<Bookmark> bookmarks;
+
+    @JsonIgnore
+    @OneToMany(
+            targetEntity = Review2.class,
+            fetch = FetchType.LAZY)
+    @JoinColumn
+    private List<Review2> reviews;
+
+    @JsonIgnore
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(authority);
     }
 
-    public void setID(String ID) {
-        this.ID = ID;
+    @JsonIgnore
+    @Override
+    public String getUsername() {
+        return getId();
     }
 
-    public String getName() {
-        return Name;
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public void setName(String name) {
-        Name = name;
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public String getPassowrd() {
-        return Passowrd;
+    @JsonIgnore
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
-    public void setPassowrd(String passowrd) {
-        Passowrd = passowrd;
+    @JsonIgnore
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

@@ -2,32 +2,34 @@ package edu.skku.dealistic.controller;
 
 
 import edu.skku.dealistic.model.Review;
-import org.springframework.beans.factory.annotation.Autowired;
+import edu.skku.dealistic.service.ReviewService;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import edu.skku.dealistic.service.ReviewService;
 
-import java.util.ArrayList;
+import javax.annotation.security.RolesAllowed;
+import java.util.List;
 
-@CrossOrigin
 @RestController
-@RequestMapping("/reviews")
+@RequestMapping(value = "/reviews", produces = MediaType.APPLICATION_JSON_VALUE)
+@RolesAllowed({"USER", "MANAGER"})
 public class ReviewController {
 
-    @Autowired
-    ReviewService ps;
+    private final ReviewService reviewService;
 
-    @RequestMapping(value="/all", produces= MediaType.APPLICATION_JSON_VALUE)
-    public ArrayList<Review> getAll()
-    {
-        return ps.getAll();
+    public ReviewController(ReviewService reviewService) {
+        this.reviewService = reviewService;
     }
 
-    @RequestMapping(value = "{author}", produces= MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
+    public List<Review> getAll() {
+        return reviewService.getAll();
+    }
+
+    @RequestMapping(value = "/{author}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Review getUser(@PathVariable("author") String author) {
-        return ps.getReview(author);
+        return reviewService.getReviews(author);
     }
 }
