@@ -10,103 +10,88 @@
     Changelog: 
 -->
 <template>
-  <ion-page class="ion-page">
-    <ion-header>
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-back-button></ion-back-button>
-        </ion-buttons>
-        <ion-title>Item Detail - {{ item.name }}</ion-title>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content>
-      <section id="item-detail" margin>
-        <ion-grid>
-          <ion-row>
-            <ion-col size="6">
-              <ion-img :src="item.image" />
-            </ion-col>
-            <ion-col size="6">
-              <div id="item-header">
-                <h1>{{ item.name }}</h1>
-                <span>{{ item.company }}</span>
-              </div>
-              <ul id="item-specs">
-                <li v-for="(spec, index) in item.specs" :key="index">{{ spec }}</li>
-              </ul>
-            </ion-col>
-          </ion-row>
-          <ion-row align-items-center>
-            <ion-col size="6">
-              <ul id="item-vendors">
-                <li v-for="(vendor, index) in item.vendors" :key="index">
-                  <a :href="vendor.link">{{ vendor.name }}</a>
-                </li>
-              </ul>
-            </ion-col>
-            <ion-col size="6" text-right>
-              <ion-button size="small" fill="outline"><!-- TODO toggle bookmark -->
-                <ion-icon name="add" />
-                <span>Add to Bookmark</span>
-              </ion-button>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </section>
-      <section id="review-analysis" margin>
-        <h1>Review Analysis</h1>
-        <ion-grid>
-          <ion-row>
-            <ion-col id="review-score" align-items-end>
-                <h2>{{ item.score | percent(5) }}%</h2>
-                <span>recommended</span>
-            </ion-col>
-            <ion-col id="review-score-chart">
-
-            </ion-col>
-          </ion-row>
-          <ion-row id="review-keywords">
-            <ion-col size="12">
-              <h2>Most mentioned keywords</h2>
-            </ion-col>
-            <ion-col>
-              <ul id="review-keywords-positive" class="review-keywords">
-                <li v-for="keyword in item.keywords" :key="" v-if="keyword.type == 'positive'">
-                  {{ keyword.name }}
-                </li>
-              </ul>
-            </ion-col>
-            <ion-col text-right>
-              <ul id="review-keywords-negative" class="review-keywords">
-                <li v-for="keyword in item.keywords" v-if="keyword.type == 'negative'">
-                  {{ keyword.name }}
-                </li>
-              </ul>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </section>
-      <section id="review-detail">
-        <h1 margin-start>Item Reviews</h1>
-        <ion-card v-for="review in reviews" :key="review.importance">
-          <ion-card-header>
-            <ion-card-subtitle>{{ review.author }}</ion-card-subtitle>
-            <ion-card-title>{{ review.title }}</ion-card-title>
-              <span v-if="review.score > 0">positive</span>
-              <span v-else>negative</span>
-          </ion-card-header>
-          <ion-card-content>
-            {{ review.content }}
-          </ion-card-content>
-        </ion-card>
-        <ion-infinite-scroll-content
-          loading-spinner="bubbles"
-          loading-text="Loading more reviews..."
-        >
-        </ion-infinite-scroll-content>
-      </section>
-    </ion-content>
-  </ion-page>
+  <ion-vue-page :page-title="`item Detail - ${item.name}`">
+    <section id="item-detail" margin>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-img :src="item.image"/>
+          </ion-col>
+          <ion-col size="6">
+            <div id="item-header">
+              <h1>{{ item.name }}</h1>
+              <span>{{ item.company }}</span>
+            </div>
+            <ul id="item-specs">
+              <li v-for="(spec, index) in item.specs" :key="index">{{ spec }}</li>
+            </ul>
+          </ion-col>
+        </ion-row>
+        <ion-row align-items-center>
+          <ion-col size="6">
+            <ul id="item-vendors">
+              <li v-for="(vendor, index) in item.vendors" :key="index">
+                <a :href="vendor.link">{{ vendor.name }}</a>
+              </li>
+            </ul>
+          </ion-col>
+          <ion-col size="6" text-right>
+            <ion-button size="small" fill="outline">
+              <!-- TODO toggle bookmark -->
+              <ion-icon name="add"/>
+              <span>Add to Bookmark</span>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </section>
+    <section id="review-analysis" margin>
+      <h1>Review Analysis</h1>
+      <ion-grid>
+        <ion-row>
+          <ion-col id="review-score" align-items-end>
+            <h2>{{ item.score | percent(5) }}%</h2>
+            <span>recommended</span>
+          </ion-col>
+          <ion-col id="review-score-chart"></ion-col>
+        </ion-row>
+        <ion-row id="review-keywords">
+          <ion-col size="12">
+            <h2>Most mentioned keywords</h2>
+          </ion-col>
+          <ion-col>
+            <ul id="review-keywords-positive" class="review-keywords">
+              <li
+                v-for="keyword in item.keywords"
+                :key
+                v-if="keyword.type == 'positive'"
+              >{{ keyword.name }}</li>
+            </ul>
+          </ion-col>
+          <ion-col text-right>
+            <ul id="review-keywords-negative" class="review-keywords">
+              <li
+                v-for="keyword in item.keywords"
+                v-if="keyword.type == 'negative'"
+              >{{ keyword.name }}</li>
+            </ul>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </section>
+    <section id="review-detail">
+      <h1 margin-start>Item Reviews</h1>
+      <ion-card v-for="review in reviews" :key="review.importance">
+        <ion-card-header>
+          <ion-card-subtitle>{{ review.author }}</ion-card-subtitle>
+          <ion-card-title>{{ review.title }}</ion-card-title>
+          <span v-if="review.score > 0">positive</span>
+          <span v-else>negative</span>
+        </ion-card-header>
+        <ion-card-content>{{ review.content }}</ion-card-content>
+      </ion-card>
+    </section>
+  </ion-vue-page>
 </template>
 
 <script>
@@ -182,25 +167,26 @@ export default {
         itemId: itemId
       };
 
-      this.$http
-        .get(`/reviews`, { params: criteria })
-        .then(result => {
-          this.reviews = result.data;
-        });
+      this.$http.get(`/reviews`, { params: criteria }).then(result => {
+        this.reviews = result.data;
+      });
     },
-    addItemToBookmark() {}
+    addItemToBookmark() {
+      this.$http.post(`/users/bookmarks`);
+    }
   },
   mounted() {
     // this method should be enabled after backend is configured
     //this.getItem(this.$route.params.id)
-    console.log(this)
   },
   beforeRouteEnter(to, from, next) {
-    next(vm => { vm.prevRoute = from})
+    next(vm => {
+      vm.prevRoute = from;
+    });
   },
   computed: {
     isPrevExist() {
-      return this.prevRoute && this.prevRoute.matched.length !== 0
+      return this.prevRoute && this.prevRoute.matched.length !== 0;
     }
   }
 };
@@ -260,7 +246,7 @@ section h1 {
 
 #review-score h2 {
   font-size: 4em;
-  font-weight:bolder;
+  font-weight: bolder;
   margin-bottom: 0;
 }
 
