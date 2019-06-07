@@ -16,6 +16,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <jjwt.version>0.9.0</jjwt.version>
         <azure.version>2.1.2</azure.version>
         <spring-cloud.version>Greenwich.SR1</spring-cloud.version>
     </properties>
@@ -33,6 +34,11 @@
             <version>3.9.2</version>
             <classifier>models</classifier>
         </dependency>
+<!--        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-language</artifactId>
+            <version>1.61.0</version>
+        </dependency>-->
 
         <!-- Review Crawler Dependencies -->
         <dependency>
@@ -46,6 +52,30 @@
             <version>1.10.2</version>
         </dependency>
 
+        <!-- Authentication Dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+
+        <!-- Database Dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-hibernate5</artifactId>
+        </dependency>
         <!-- Spring Boot Framework -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -60,23 +90,7 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring Boot - Azure Integration -->
-        <dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>azure-spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>azure-storage-spring-boot-starter</artifactId>
-        </dependency>
-
-        <!-- Spring Boot - DB Connection -->
-        <!--<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>-->
-
-        <!-- Spring Boot - Misc(Devtools, Testing) -->
+        <!-- Testing Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -86,6 +100,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- Java Template Code -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
 
@@ -113,6 +133,14 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>9</source>
+                    <target>9</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>
