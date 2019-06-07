@@ -51,6 +51,10 @@ export default {
           this.$action.toast(
             "Failed to Login.\nPlease check your id or password."
           );
+        })
+        .then((response) => {
+          this.$action.toast("Successfully Logged In.");
+          this.$router.replace("/ranking");
         });
     }
   }

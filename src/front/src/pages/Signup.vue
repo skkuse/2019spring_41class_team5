@@ -7,29 +7,21 @@
 -->
 <template>
   <ion-content class="ion-content" padding color="primary">
-    <ion-img src="/img/logo.png" />
+    <ion-img src="/img/logo.png"/>
     <div padding>
       <h1 text-center>Sign Up</h1>
-      <ion-input
-        placeholder="ID"
-        :value="id"
-        @ionChange="id = $event.target.value"
-      />
-      <ion-input
-        placeholder="Name"
-        :value="name"
-        @ionChange="name = $event.target.value"
-      />
+      <ion-input placeholder="ID" :value="form.id" @ionChange="form.id = $event.target.value"/>
+      <ion-input placeholder="Name" :value="form.name" @ionChange="form.name = $event.target.value"/>
       <ion-input
         placeholder="Organization"
-        :value="organization"
-        @ionChange="organization = $event.target.value"
+        :value="form.organization"
+        @ionChange="form.organization = $event.target.value"
       />
       <ion-input
         placeholder="Password"
         type="password"
-        :value="password"
-        @ionChange="password = $event.target.value"
+        :value="form.password"
+        @ionChange="form.password = $event.target.value"
       />
       <div>
         <ion-input
@@ -39,12 +31,8 @@
           @ionChange="checkPassword($event.target.value)"
         />
       </div>
-      <ion-button expand="block" color="light" @click="signup()">
-        Sign up
-      </ion-button>
-      <ion-button expand="block" color="light" fill="clear" @click="back()">
-        Cancel
-      </ion-button>
+      <ion-button expand="block" color="light" @click="signup()">Sign up</ion-button>
+      <ion-button expand="block" color="light" fill="clear" @click="back()">Cancel</ion-button>
     </div>
   </ion-content>
 </template>
@@ -53,11 +41,13 @@
 export default {
   data() {
     return {
-      id: "",
-      name: "",
-      organization: "",
-      password: "",
-      image: ""
+      form: {
+        id: "",
+        name: "",
+        organization: "",
+        password: "",
+        image: ""
+      }
     };
   },
   methods: {
@@ -65,6 +55,12 @@ export default {
     checkPassword(password) {
       if (this.password !== password)
         this.$action.toast("Password is not matched");
+    },
+    signup() {
+      this.$http.post("/auth/sign-up", this.form).then(response => {
+        this.$action.toast("Success!");
+        this.$router.replace("/login");
+      });
     },
     back() {
       this.$router.go(-1);

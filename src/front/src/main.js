@@ -18,6 +18,9 @@ import '@ionic/core/css/ionic.bundle.css'
 import './theme/variables.scss'
 import './theme/global.scss'
 
+// Import global components
+import IonVuePage from './components/IonVuePage.vue'
+
 Vue.config.productionTip = false
 
 // Library integration
@@ -25,9 +28,12 @@ Vue.use(Moment)
 Vue.use(Action)
 Vue.use(Ionic)
 
+// Global component integration
+Vue.component('ion-vue-page', IonVuePage)
+
 // HTTP config
 Vue.prototype.$http = Axios.create({
-  baseURL: '/backend/'
+  baseURL: '/api'
 });
 
 // Global filters
@@ -42,6 +48,7 @@ Vue.filter('ordinalize', function (value) {
 Vue.filter('percent', function (value, maxValue) {
   return (value / maxValue) * 100
 })
+
 
 // Start Vue App
 new Vue({
