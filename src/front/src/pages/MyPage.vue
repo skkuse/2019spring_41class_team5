@@ -3,9 +3,9 @@
     Objective: Manage user specific informations
     Author   : Junhyun Kim <junbread@skku.edu>
     Functions: - [x] View/Edit user profiles
-               - [ ] View/Delete bookmarks
+               - [x] View/Delete bookmarks
                - [ ] View/Edit/Delete user reviews
-               - [ ] Logout
+               - [x] Logout
                - [ ] Dynamic loading for review, bookmark lists
     Changelog: 
 -->
@@ -14,7 +14,7 @@
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button />
+          <ion-back-button/>
         </ion-buttons>
         <ion-title>Mypage</ion-title>
         <ion-buttons slot="end">
@@ -27,17 +27,11 @@
     <ion-content class="ion-content">
       <section id="profile" padding text-center>
         <ion-avatar inline>
-          <ion-img :src="user.image" />
+          <ion-img :src="user.image"/>
         </ion-avatar>
         <h1>{{ user.name }}</h1>
         <h2>{{ user.organization }}</h2>
-        <ion-button
-          shape="round"
-          size="small"
-          @click="handleEditProfileButtonClick()"
-        >
-          Edit
-        </ion-button>
+        <ion-button shape="round" size="small" @click="handleEditProfileButtonClick()">Edit</ion-button>
       </section>
       <section id="content" padding>
         <ion-segment @ionChange="active = $event.detail.value">
@@ -49,30 +43,21 @@
           </ion-segment-button>
         </ion-segment>
         <div id="list-bookmark" v-if="active == 'bookmark'">
-          <ion-card
-            v-for="bookmark in bookmarks"
-            :key="bookmark.id"
-            no-margin
-            margin-top
-          >
+          <ion-card v-for="bookmark in bookmarks" :key="bookmark.id" no-margin margin-top>
             <ion-card-header>
               <ion-grid>
                 <ion-row>
                   <ion-col size="8">
                     <ion-card-title>{{ bookmark.name }}</ion-card-title>
-                    <ion-card-subtitle>
-                      {{ bookmark.company }}
-                    </ion-card-subtitle>
+                    <ion-card-subtitle>{{ bookmark.company }}</ion-card-subtitle>
                   </ion-col>
                   <ion-col size="4">
-                    <ion-img :src="bookmark.image" />
+                    <ion-img :src="bookmark.image"/>
                   </ion-col>
                 </ion-row>
                 <ion-row align-items-center>
                   <ion-col size="8">
-                    <span>
-                      Added at {{ bookmark.date | moment("YYYY-MM-DD") }}
-                    </span>
+                    <span>Added at {{ bookmark.date | moment("YYYY-MM-DD") }}</span>
                   </ion-col>
                   <ion-col size="4" text-right>
                     <ion-button
@@ -82,7 +67,7 @@
                       no-padding
                       @click="handleBookmarkDeleteButtonClick(bookmark.id)"
                     >
-                      <ion-icon name="trash" />
+                      <ion-icon name="trash"/>
                       <span>Delete</span>
                     </ion-button>
                   </ion-col>
@@ -91,9 +76,7 @@
             </ion-card-header>
           </ion-card>
         </div>
-        <div id="list-review" v-if="active == 'review'">
-          I am Review
-        </div>
+        <div id="list-review" v-if="active == 'review'">I am Review</div>
       </section>
     </ion-content>
   </ion-page>
@@ -177,27 +160,61 @@ export default {
     },
 
     /* Backend event handlers */
+    getBookmarks() {
+      this.$http
+        .get(`/users/${this.$store.state.user.id}/bookmarks`)
+        .then(data => (this.bookmarks = data));
+    },
     deleteBookmark(bookmarkId) {
       this.$http.delete(`/bookmarks/${bookmarkId}`).then(
-        () => { // on success
+        () => {
+          // on success
           this.bookmarks = this.bookmarks.filter(
             bookmark => bookmark.id != bookmarkId
           );
         },
-        () => { // on failed
+        () => {
+          // on failed
           this.$action.toast("Failed to Remove Bookmark.");
         }
       );
     },
-    editReview(reviewId, review) {
-      this.$http.patch(`/reviews/${reviewId}`, review);
+    getReviews() {
+      this.$http
+        .get(`/users/${this.$store.state.user.id}/reviews`)
+        .then(data => (this.reviews = data));
+    },
+    updateReview(reviewId, review) {
+      this.$http.patch(`/reviews/${reviewId}`, review).then(
+        () => {
+          // on success
+          this.reviews.index = this.reviews.filter(
+            review => review.id != reviewId
+          );
+        },
+        () => {
+          // on failed
+          this.$action.toast("Failed to Remove Bookmark.");
+        }
+      );
     },
     deleteReview(reviewId) {
-      this.$http.delete(`/reviews/${reviewId}`);
+      this.$http.delete(`/reviews/${reviewId}`).then(
+        () => {
+          // on success
+          this.bookmarks = this.bookmarks.filter(
+            bookmark => bookmark.id != bookmarkId
+          );
+        },
+        () => {
+          // on failed
+          this.$action.toast("Failed to Remove Bookmark.");
+        }
+      );
     },
     logout() {
-      this.$router.replace("/login");
       this.$store.dispatch("logout");
+      this.$router.replace("/login");
       this.$action.toast("Successfully signed out");
     }
   },
