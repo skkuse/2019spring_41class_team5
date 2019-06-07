@@ -14,7 +14,7 @@ ul {
   list-style: none;
 }
 
-div[scroll-x=true], div[scroll-y=true] {
+div[scroll-x], div[scroll-y] {
   position: relative;
   overflow: hidden;
   white-space: nowrap;
@@ -23,10 +23,10 @@ div[scroll-x=true], div[scroll-y=true] {
   }
 }
 
-div[scroll-x=true] {
+div[scroll-x] {
   overflow-x: auto;
 }
 
-div[scroll-y=true] {
+div[scroll-y] {
   overflow-y: auto;
 }
