@@ -1,35 +1,69 @@
 package edu.skku.dealistic.controller;
 
 
+import edu.skku.dealistic.exception.NotFoundException;
+import edu.skku.dealistic.model.Item;
 import edu.skku.dealistic.model.Review;
-import edu.skku.dealistic.service.ReviewService;
+import edu.skku.dealistic.model.User;
+import edu.skku.dealistic.payload.Request;
+import edu.skku.dealistic.persistence.ItemRepository;
+import edu.skku.dealistic.persistence.ReviewRepository;
+import edu.skku.dealistic.persistence.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping(value = "/reviews", produces = MediaType.APPLICATION_JSON_VALUE)
-@RolesAllowed({"USER", "MANAGER"})
+@RequiredArgsConstructor
 public class ReviewController {
 
-    private final ReviewService reviewService;
+    private final ReviewRepository reviewRepository;
 
-    public ReviewController(ReviewService reviewService) {
-        this.reviewService = reviewService;
+    private final ItemRepository itemRepository;
+
+    private final UserRepository userRepository;
+
+    @GetMapping("/reviews")
+    public List<Review> getReviews(
+            @RequestParam(required = false) String authorId,
+            @RequestParam(required = false) Integer itemId
+    ) {
+        Optional<User> author = authorId == null ? Optional.empty() : userRepository.findById(authorId);
+        Optional<Item> item = itemId == null ? Optional.empty() : itemRepository.findById(itemId);
+
+        if (author.isPresent() && item.isPresent())
+            return List.of(reviewRepository.findReviewByAuthorAndItem(author.get(), item.get()));
+        if (author.isPresent())
+            return reviewRepository.findReviewsByAuthor(author.get());
+        if (item.isPresent())
+            return reviewRepository.findReviewsByItem(item.get());
+        else return List.of();
     }
 
-    @GetMapping
-    public List<Review> getAll() {
-        return reviewService.getAll();
+    @PostMapping("/reviews")
+    public void createReview(@RequestBody Review review) {
+        reviewRepository.save(review);
     }
 
-    @RequestMapping(value = "/{author}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Review getUser(@PathVariable("author") String author) {
-        return reviewService.getReviews(author);
+    @GetMapping("/reviews/{id}")
+    public Review getReview(@PathVariable Integer id) {
+        return reviewRepository.findById(id).orElseThrow(NotFoundException::new);
+    }
+
+    @PatchMapping("/reviews/{id}")
+    public void updateReview(@PathVariable Integer id, @RequestBody Review review) {
+        Review originalReview = reviewRepository.findById(id).orElseThrow(NotFoundException::new);
+        originalReview.setContent(review.getContent());
+
+        reviewRepository.save(originalReview);
+    }
+
+    @DeleteMapping("/reviews/{id}")
+    public void deleteReview(@PathVariable Integer id) {
+        reviewRepository.deleteById(id);
     }
 }

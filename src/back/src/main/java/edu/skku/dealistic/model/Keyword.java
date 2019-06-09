@@ -1,37 +1,44 @@
 package edu.skku.dealistic.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import edu.skku.dealistic.converter.ListToCsvConverter;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Keyword {
 
-    enum KeywordType {
-        POSITIVE, NEGATIVE, NEUTRAL, INFO
-    }
-
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(length = 100, nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private KeywordType type;
+    @JsonIgnore
+    @ManyToOne(targetEntity = ItemCategory.class)
+    @JoinColumn(nullable = false)
+    private ItemCategory category;
 
-    @ManyToMany(targetEntity = Review2.class)
-    @JoinColumn
-    private List<Review2> reviews;
+    @JsonIgnore
+    @Convert(converter = ListToCsvConverter.class)
+    @Column(length = 1000)
+    private List<String> synonyms;
 
-    @ManyToMany(targetEntity = Item.class)
-    @JoinColumn
-    private List<Item> items;
+    @JsonIgnore
+    @Convert(converter = ListToCsvConverter.class)
+    @Column(length = 1000)
+    private List<String> antonyms;
 
-    @ManyToMany(targetEntity = Recommendation.class)
-    @JoinColumn
-    private List<Recommendation> recommendations;
+    public Boolean contains(String word) {
+        return name.equalsIgnoreCase(word) || synonyms.stream().anyMatch(w -> w.equalsIgnoreCase(word));
+    }
+
 }

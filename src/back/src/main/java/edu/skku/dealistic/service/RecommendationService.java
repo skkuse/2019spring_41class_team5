@@ -30,7 +30,6 @@ public class RecommendationService {
         retrievedRecommendation.setName(recommendation.getName());
         retrievedRecommendation.setCategory(recommendation.getCategory());
         retrievedRecommendation.setDescription(recommendation.getDescription());
-        retrievedRecommendation.setKeywords(recommendation.getKeywords());
 
         recommendationRepository.save(retrievedRecommendation);
     }

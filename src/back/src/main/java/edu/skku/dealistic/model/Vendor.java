@@ -1,18 +1,22 @@
 package edu.skku.dealistic.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Vendor {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Integer id;
 
@@ -56,5 +60,9 @@ public class Vendor {
 
     private String pageParam(Integer page) {
         return pageParam + "=" + page;
+    }
+
+    public Reference referenece() {
+        return Reference.builder().id(this.id).name(this.name).build();
     }
 }

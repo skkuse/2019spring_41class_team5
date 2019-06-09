@@ -7,7 +7,7 @@ import edu.skku.dealistic.payload.LoginRequest;
 import edu.skku.dealistic.payload.SignupRequest;
 import edu.skku.dealistic.security.UserAuthService;
 import edu.skku.dealistic.service.UserService;
-import edu.skku.dealistic.util.JwtTokenProvider;
+import edu.skku.dealistic.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;

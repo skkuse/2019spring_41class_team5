@@ -1,11 +1,11 @@
 package edu.skku.dealistic.config;
 
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import com.fasterxml.jackson.databind.Module;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -15,6 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("*")
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE")
                 .maxAge(MAX_AGE_SECS);
     }
 
@@ -22,4 +23,5 @@ public class WebConfig implements WebMvcConfigurer {
     public Module datatypeHibernateModule() {
         return new Hibernate5Module();
     }
+
 }

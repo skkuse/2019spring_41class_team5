@@ -1,6 +1,6 @@
-package edu.skku.dealistic.util;
+package edu.skku.dealistic.security;
 
-import edu.skku.dealistic.model.User;
+import edu.skku.dealistic.security.AuthUser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +21,7 @@ public class JwtTokenProvider {
     private Integer expirationSec;
 
     public String generateToken(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        AuthUser user = (AuthUser) authentication.getPrincipal();
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiry = now.plusSeconds(expirationSec);

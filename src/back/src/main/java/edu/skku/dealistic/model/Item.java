@@ -2,19 +2,34 @@ package edu.skku.dealistic.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.skku.dealistic.converter.ListToJsonConverter;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.List;
 
+@NamedEntityGraph(name = "Item.detail",
+        attributeNodes = @NamedAttributeNode(value = "vendorLinks", subgraph = "vendorLinksGraph"),
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "vendorLinksGraph",
+                        attributeNodes = {
+                                @NamedAttributeNode("vendor")
+                        }
+                )
+        }
+)
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode()
+@ToString(exclude = {"vendorLinks", "reviews", "keywords"})
 public class Item {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     @Setter(AccessLevel.NONE)
     private Integer id;
@@ -23,7 +38,7 @@ public class Item {
     @Setter(AccessLevel.NONE)
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     @Setter(AccessLevel.NONE)
     private ItemCategory category;
@@ -34,7 +49,7 @@ public class Item {
 
     @Lob
     @Column
-    private Byte[] image;
+    private byte[] image;
 
     @Column(nullable = false)
     private Double rating = 0.0;
@@ -47,11 +62,19 @@ public class Item {
     @Column(length = 4000)
     private List<String> specs;
 
-    //@OneToMany
-    //private List<VendorLink> vendorLinks;
+    @Fetch(FetchMode.SELECT)
+    @OneToMany(targetEntity = VendorLink.class, orphanRemoval = true, cascade = CascadeType.ALL)
+    @JoinColumn(name = "item_id")
+    private List<VendorLink> vendorLinks;
 
-    //@OneToMany
-    //private List<Review> reviews;
+    @OneToMany(targetEntity = ItemKeyword.class, orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "item_id")
+    private List<ItemKeyword> keywords;
+
+    @JsonIgnore
+    @OneToMany(targetEntity = Review.class, orphanRemoval = true, cascade = CascadeType.ALL)
+    @JoinColumn(name = "item_id")
+    private List<Review> reviews;
 
 
 }

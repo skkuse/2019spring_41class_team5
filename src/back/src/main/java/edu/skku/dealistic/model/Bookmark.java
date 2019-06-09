@@ -1,19 +1,24 @@
 package edu.skku.dealistic.model;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 
+// JPA Annotations
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"item_id", "user_id"}))
+// Lombok Annotations
 @Data
-@Setter(AccessLevel.PROTECTED) // Read Only
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(of = {"id"})
 public class Bookmark {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Integer id;
 
@@ -25,6 +30,8 @@ public class Bookmark {
     @JoinColumn(nullable = false)
     private Item item;
 
+    @UpdateTimestamp
     @Column(nullable = false)
     private LocalDate addDate;
 }
+

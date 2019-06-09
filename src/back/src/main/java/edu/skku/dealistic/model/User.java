@@ -1,16 +1,9 @@
 package edu.skku.dealistic.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -18,10 +11,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User implements UserDetails {
+@ToString(exclude = {"bookmarks", "reviews"})
+public class User {
 
     @Id
     @Column(length = 20)
+    @Setter(AccessLevel.NONE)
     private String id;
 
     @Column(length = 100, nullable = false)
@@ -47,50 +42,17 @@ public class User implements UserDetails {
     @OneToMany(
             targetEntity = Bookmark.class,
             orphanRemoval = true,
+            cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
-    @JoinColumn
+    @JoinColumn(name = "user_id")
     private List<Bookmark> bookmarks;
 
     @JsonIgnore
     @OneToMany(
-            targetEntity = Review2.class,
+            targetEntity = Review.class,
+            orphanRemoval = true,
+            cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
-    @JoinColumn
-    private List<Review2> reviews;
-
-    @JsonIgnore
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(authority);
-    }
-
-    @JsonIgnore
-    @Override
-    public String getUsername() {
-        return getId();
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    @JoinColumn(name = "author_id")
+    private List<Review> reviews;
 }

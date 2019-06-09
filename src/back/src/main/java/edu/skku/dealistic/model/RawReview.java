@@ -3,6 +3,8 @@ package edu.skku.dealistic.model;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 /**
  * Review Item before analyzing
  *
@@ -11,12 +13,12 @@ import lombok.Data;
 @Data
 @Builder
 public class RawReview {
-    private Integer itemId;
+    private Item item;
     private String title;
     private String author;
     private String content;
-    private Integer rating;
+    private Double rating;
     private Boolean imageExists;
-    private String date;
+    private LocalDate date;
     private Reference reference;
 }

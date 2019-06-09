@@ -1,15 +1,12 @@
 package edu.skku.dealistic.controller;
 
-import edu.skku.dealistic.payload.ApiResponse;
 import edu.skku.dealistic.model.Recommendation;
+import edu.skku.dealistic.payload.ApiResponse;
 import edu.skku.dealistic.service.RecommendationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
 import java.util.List;
 
 @RestController

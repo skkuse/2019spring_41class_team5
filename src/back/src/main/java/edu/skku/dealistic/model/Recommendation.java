@@ -1,16 +1,20 @@
 package edu.skku.dealistic.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Recommendation {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(nullable = false)
@@ -28,5 +32,10 @@ public class Recommendation {
     private User author;
 
     @ManyToMany(targetEntity = Keyword.class)
+    @JoinTable(
+            name = "recommendation_keyword",
+            joinColumns = @JoinColumn(name = "recommendation_id"),
+            inverseJoinColumns = @JoinColumn(name = "keyword_id")
+    )
     private List<Keyword> keywords;
 }

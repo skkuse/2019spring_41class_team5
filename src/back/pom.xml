@@ -34,11 +34,20 @@
             <version>3.9.2</version>
             <classifier>models</classifier>
         </dependency>
+        <dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>simple</artifactId>
+        </dependency>
 <!--        <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-language</artifactId>
             <version>1.61.0</version>
         </dependency>-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.6</version>
+        </dependency>
 
         <!-- Review Crawler Dependencies -->
         <dependency>
@@ -76,6 +85,7 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-hibernate5</artifactId>
         </dependency>
+
         <!-- Spring Boot Framework -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
