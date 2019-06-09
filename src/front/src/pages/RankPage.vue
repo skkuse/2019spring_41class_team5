@@ -1,17 +1,20 @@
 <template>
-  <ion-page class="ion-page">
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Rank</ion-title>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content>
-      <router-link
-        :to="{ path: 'item-detail/' + item.id }"
-        tag="ion-card"
-        v-for="item in items"
-        :key="item.rank"
+  <ion-vue-page page-title="Rank" :show-back="false">
+    <div slot="toolbar-end">
+      <ion-select
+        interface="popover"
+        :value="selectedCategory"
+        @ionChange="selectedCategory = $event.target.value"
       >
+        <ion-select-option
+          v-for="(category, index) in categories"
+          :key="category.index"
+          :value="index"
+        >{{ category.name }}</ion-select-option>
+      </ion-select>
+    </div>
+    <div>
+      <ion-card v-for="item in items" :key="item.rank" @click="handleItemClick(item)">
         <ion-card-header>
           <ion-grid no-padding>
             <ion-row>
@@ -29,42 +32,26 @@
           <ion-grid no-padding>
             <ion-row>
               <ion-col size="6">
-                <img src="/img/item-sample.jpg" />
+                <img :src="item.image | base64('jpg')">
               </ion-col>
               <ion-col size="6" no-padding text-right>
                 <ul class="item-keyword" no-padding>
-                  <li v-for="(keyword, index) in item.keywords" :key="index">
-                    {{ keyword }}
-                  </li>
+                  <li
+                    v-for="itemKeyword in item.keywords"
+                    :key="itemKeyword.rating"
+                  >{{ itemKeyword.keyword.name }}</li>
                 </ul>
-                <div class="item-score">
-                  {{ item.score }} <small>/ 5</small>
+                <div class="item-rating">
+                  {{ item.rating.toFixed(1) }}
+                  <small>/ 5</small>
                 </div>
               </ion-col>
             </ion-row>
           </ion-grid>
         </ion-card-content>
-      </router-link>
-    </ion-content>
-    <ion-tab-bar slot="bottom">
-      <ion-tab-button tab="rank">
-        <ion-icon name="ribbon"></ion-icon>
-        <ion-label>Ranking</ion-label>
-      </ion-tab-button>
-      <ion-tab-button tab="recommendation">
-        <ion-icon name="thumbs-up"></ion-icon>
-        <ion-label>Recommendation</ion-label>
-      </ion-tab-button>
-      <ion-tab-button tab="mypage">
-        <ion-icon name="person"></ion-icon>
-        <ion-label>Mypage</ion-label>
-      </ion-tab-button>
-      <ion-tab-button tab="search">
-        <ion-icon name="search"></ion-icon>
-        <ion-label>Search</ion-label>
-      </ion-tab-button>
-    </ion-tab-bar>
-  </ion-page>
+      </ion-card>
+    </div>
+  </ion-vue-page>
 </template>
 
 <script>
@@ -72,18 +59,68 @@ export default {
   name: "rank-page",
   data() {
     return {
-      items: [
-        {
-          id: 1234,
-          rank: 1,
-          name: "Omet 16t",
-          company: "Heulett-packard",
-          keywords: ["Performance", "Extreme Gaming", "Build Quality"],
-          image: "/img/item-sample.jpg",
-          score: 4.7
-        }
-      ]
+      items: [],
+      categories: [],
+      selectedCategory: null
     };
+  },
+  methods: {
+    handleItemClick(item) {
+      console.log(item);
+      this.$router.push({
+        path: `ranking/item-detail/${item.id}`
+      });
+    },
+    getItems(category) {
+      return new Promise((onSuccess, onFailure) => {
+        this.$http
+          .get(`/items?itemCategoryId=${category.id}`)
+          .then(response => {
+            this.items = response.data
+              .sort((a, b) => {
+                return a.rating < b.rating ? 1 : a.rating > b.rating ? -1 : 0;
+              })
+              .map((item, index) => {
+                item.rank = index + 1;
+                item.keywords = item.keywords
+                  .sort((a, b) => {
+                    return a.rating < b.rating ? 1 : a.rating > b.rating ? -1 : 0;
+                  })
+                  .slice(0, 3);
+                return item;
+              });
+            onSuccess();
+          })
+          .catch(error => {
+            this.$action.toast(error.message);
+            onFailure();
+          });
+      });
+    },
+    getCategories() {
+      return new Promise((onSuccess, onFailure) => {
+        this.$http
+          .get(`/item-categories`)
+          .then(response => {
+            this.categories = response.data;
+            onSuccess();
+          })
+          .catch(error => {
+            this.$action.toast(error.message);
+            onFailure();
+          });
+      });
+    }
+  },
+  mounted() {
+    this.getCategories().then(() => {
+      this.selectedCategory = 0;
+    });
+  },
+  watch: {
+    selectedCategory(index) {
+      this.getItems(this.categories[index]);
+    }
   }
 };
 </script>
@@ -110,7 +147,7 @@ export default {
 .item-keyword li:nth-child(3) {
   font-size: smaller;
 }
-.item-score {
+.item-rating {
   font-weight: bold;
   font-size: xx-large;
 }
