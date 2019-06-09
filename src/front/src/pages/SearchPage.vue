@@ -17,17 +17,24 @@
         <ion-title>Search</ion-title>
       </ion-toolbar>
       <ion-toolbar>
-        <ion-searchbar animated></ion-searchbar>
+        <ion-searchbar
+          animated
+          placeholder="Search.."
+          :value="keyword"
+          @ionFocus="handleInputFocus"
+          @ionInput="keyword = $event.target.value"
+          @keyup.enter="searchItems(keyword)"
+        ></ion-searchbar>
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-content" padding>
-      <ion-list>
+      <ion-list v-if="!resultMode">
         <ion-list-header>
           <ion-label>Search History</ion-label>
         </ion-list-header>
         <ion-item v-for="(history, index) in histories" :key="index">
-          <ion-label>{{ history.item.name }}</ion-label>
-          <ion-button fill="clear" @click="deleteHistory(history.id)">
+          <ion-label @click="searchItems(history.keyword)">{{ history.keyword }}</ion-label>
+          <ion-button fill="clear" @click="deleteHistory(index)">
             <ion-icon name="close-circle"/>
           </ion-button>
         </ion-item>
@@ -36,6 +43,9 @@
           <ion-label>Delete All</ion-label>
         </ion-button>
       </ion-list>
+      <ion-card v-for="(item, index) in items" :key="index">
+
+      </ion-card>
     </ion-content>
   </ion-page>
 </template>
@@ -45,64 +55,35 @@ export default {
   name: "search-page",
   data() {
     return {
-      histories: [
-        {
-          id: 1,
-          item: {
-            id: 1234,
-            name: "HP Omen 15t"
-          }
-        },
-        {
-          id: 2,
-          item: {
-            id: 1234,
-            name: "HP Omen 15t"
-          }
-        },
-        {
-          id: 3,
-          item: {
-            id: 1234,
-            name: "HP Omen 15t"
-          }
-        },
-        {
-          id: 4,
-          item: {
-            id: 1234,
-            name: "HP Omen 15t"
-          }
-        }
-      ]
+      keyword: null,
+      resultMode: false,
+      items: []
     };
   },
   methods: {
-    deleteHistory(historyId) {
-      const user = this.$store.state.user;
-      this.$http.delete(`users/${user.id}/histories/${historyId}`).then(
-        () => {
-          this.histories = this.histories.filter(
-            history => history.id !== historyId
-          );
-          this.$action.toast("Successfully deleted history.");
-        },
-        () => {
-          this.$action.toast("Failed to delete history.");
-        }
-      );
+    handleInputFocus(){
+      this.resultMode = false;
+      this.keyword = null;
+    },
+    searchItems(keyword) {
+
+      this.$store.dispatch("insertSearchHistory", {
+        keyword: keyword,
+        date: this.$moment()
+      });
+
+      this.resultMode = true;
+    },
+    deleteHistory(index) {
+      this.$store.dispatch("deleteSearchHistory", index);
     },
     deleteHistoryAll() {
-      const user = this.$store.state.user;
-      this.$http.delete(`users/${user.id}/histories`).then(
-        () => {
-          this.histories = [];
-          this.$action.toast("Successfully deleted all history.");
-        },
-        () => {
-          this.$action.toast("Failed to delete all history.");
-        }
-      );
+      this.$store.dispatch("deleteSearchHistoryAll");
+    }
+  },
+  computed: {
+    histories() {
+      return this.$store.state.searchHistories;
     }
   }
 };

@@ -6,7 +6,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: () => ({
     token: null,
-    user: null
+    user: null,
+    searchHistories: []
   }),
   mutations: {
     login(state, payload) {
@@ -16,20 +17,41 @@ export default new Vuex.Store({
     logout() {
       this.state.token = null;
       this.state.user = null;
+    },
+    insertSearchHistory(state, history) {
+      this.state.searchHistories.push(history);
+    },
+    deleteSearchHistory(state, index) {
+      this.state.searchHistories.splice(index, 1);
+    },
+    deleteSearchHistoryAll(state) {
+      this.state.searchHistories = [];
+    },
+    setSearchHistories(context, histories) {
+      this.state.searchHistories = histories;
     }
   },
   actions: {
     preLogined(context, params) {
       return new Promise((onSuccess, onFailure) => {
-        if (!params.id || !params.password) {
+        if (!params.token || !params.user) {
           onFailure();
           return;
         }
-
-        this.commit("login", params);
         Vue.prototype.$http.defaults.headers.common["Authorization"] =
           "Bearer " + params.token;
-        onSuccess();
+
+        Vue.prototype.$http.get("/").then(
+          () => {
+            this.commit("login", params);
+            onSuccess();
+          },
+          () => {
+            this.commit("logout");
+            localStorage.clear();
+            Vue.prototype.$http.defaults.headers.common["Authorization"] = undefined;
+            onFailure();
+          });
       });
     },
     login(context, params) {
@@ -52,17 +74,31 @@ export default new Vuex.Store({
             Vue.prototype.$http.defaults.headers.common["Authorization"] =
               "Bearer " + response.data.token;
 
-            localStorage.setItem("token", response.data.token);
-            localStorage.setItem("user", JSON.stringify(response.data.user));
+            localStorage.token = response.data.token;
+            localStorage.user = JSON.stringify(response.data.user);
             onSuccess(response);
           }, onFailure);
       });
     },
     logout() {
       this.commit("logout");
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      localStorage.clear();
       Vue.prototype.$http.defaults.headers.common["Authorization"] = undefined;
+    },
+    setSearchHistories(context, histories) {
+      this.commit('setSearchHistories', histories);
+    },
+    insertSearchHistory(context, history) {
+      this.commit('insertSearchHistory', history);
+      localStorage.setItem('searchHistories', JSON.stringify(this.state.searchHistories));
+    },
+    deleteSearchHistory(context, historyIndex) {
+      this.commit('deleteSearchHistory', historyIndex);
+      localStorage.setItem('searchHistories', JSON.stringify(this.state.searchHistories));
+    },
+    deleteSearchHistoryAll(context) {
+      this.commit('deleteSearchHistoryAll');
+      localStorage.removeItem('searchHistories');
     }
   }
 });

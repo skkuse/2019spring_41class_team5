@@ -1,6 +1,5 @@
 // Import root libraries
 import Vue from 'vue'
-import Vuex from 'vuex'
 import Ionic from '@ionic/vue'
 import Moment from 'vue-moment'
 import Axios from 'axios'
@@ -20,6 +19,7 @@ import './theme/global.scss'
 
 // Import global components
 import IonVuePage from './components/IonVuePage.vue'
+import IonVueModal from './components/IonVueModal.vue'
 
 Vue.config.productionTip = false
 
@@ -30,6 +30,7 @@ Vue.use(Ionic)
 
 // Global component integration
 Vue.component('ion-vue-page', IonVuePage)
+Vue.component('ion-vue-modal', IonVueModal)
 
 // HTTP config
 Vue.prototype.$http = Axios.create({
@@ -46,9 +47,11 @@ Vue.filter('ordinalize', function (value) {
   else return value + "th"
 })
 Vue.filter('percent', function (value, maxValue) {
-  return (value / maxValue) * 100
+  return ((value / maxValue) * 100).toFixed(1)
 })
-
+Vue.filter('base64', function(value, extension) {
+  return `data:image/${extension};base64, ${value}`
+})
 
 // Start Vue App
 new Vue({

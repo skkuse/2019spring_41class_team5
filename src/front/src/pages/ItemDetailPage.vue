@@ -4,18 +4,18 @@
     Author   : Junhyun Kim <junbread@skku.edu>
     Functions: - [x] View item spec
                - [x] View item review summary
-               - [ ] View item review details
-               - [ ]Add/Edit/Delete user review
+               - [x] View item review details
+               - [ ] Add/Edit/Delete user review
                - [ ] Dynamic loading for review lists
     Changelog: 
 -->
 <template>
-  <ion-vue-page :page-title="`item Detail - ${item.name}`">
+  <ion-vue-page page-title="Item Detail" show-back="true">
     <section id="item-detail" margin>
       <ion-grid>
         <ion-row>
           <ion-col size="6">
-            <ion-img :src="item.image"/>
+            <ion-img :src="item.image | base64('jpg')"/>
           </ion-col>
           <ion-col size="6">
             <div id="item-header">
@@ -30,16 +30,19 @@
         <ion-row align-items-center>
           <ion-col size="6">
             <ul id="item-vendors">
-              <li v-for="(vendor, index) in item.vendors" :key="index">
-                <a :href="vendor.link">{{ vendor.name }}</a>
+              <li v-for="(vendorLink, index) in item.vendorLinks" :key="index">
+                <a :href="vendorLink.vendor.itemDetailUrl">{{ vendorLink.vendor.name }}</a>
               </li>
             </ul>
           </ion-col>
           <ion-col size="6" text-right>
-            <ion-button size="small" fill="outline">
-              <!-- TODO toggle bookmark -->
-              <ion-icon name="add"/>
-              <span>Add to Bookmark</span>
+            <ion-button size="small" fill="outline" @click="addItemToBookmarks" v-if="!bookmark">
+              <ion-icon name="bookmark"/>
+              <span>Bookmark</span>
+            </ion-button>
+            <ion-button size="small" fill="solid" @click="removeItemFromBookmarks" v-if="bookmark">
+              <ion-icon name="bookmark"/>
+              <span>Bookmarked</span>
             </ion-button>
           </ion-col>
         </ion-row>
@@ -49,31 +52,21 @@
       <h1>Review Analysis</h1>
       <ion-grid>
         <ion-row>
-          <ion-col id="review-score" align-items-end>
-            <h2>{{ item.score | percent(5) }}%</h2>
+          <ion-col id="review-score" align-items-end text-center>
+            <h2>{{ item.rating | percent(5) }}%</h2>
             <span>recommended</span>
           </ion-col>
-          <ion-col id="review-score-chart"></ion-col>
         </ion-row>
         <ion-row id="review-keywords">
-          <ion-col size="12">
-            <h2>Most mentioned keywords</h2>
-          </ion-col>
-          <ion-col>
+          <h2>Most mentioned keywords</h2>
+          <ion-col size="6">
             <ul id="review-keywords-positive" class="review-keywords">
-              <li
-                v-for="keyword in item.keywords"
-                :key
-                v-if="keyword.type == 'positive'"
-              >{{ keyword.name }}</li>
+              <li v-for="(iKeyword, index) in positiveKeywords" :key="index">{{ iKeyword.keyword.name }}</li>
             </ul>
           </ion-col>
-          <ion-col text-right>
+          <ion-col size="6" text-right>
             <ul id="review-keywords-negative" class="review-keywords">
-              <li
-                v-for="keyword in item.keywords"
-                v-if="keyword.type == 'negative'"
-              >{{ keyword.name }}</li>
+              <li v-for="(iKeyword, index) in negativeKeywords" :key="index">{{ iKeyword.keyword.name }}</li>
             </ul>
           </ion-col>
         </ion-row>
@@ -81,11 +74,13 @@
     </section>
     <section id="review-detail">
       <h1 margin-start>Item Reviews</h1>
-      <ion-card v-for="review in reviews" :key="review.importance">
+      <ion-card v-for="review in reviews" :key="review.id">
         <ion-card-header>
-          <ion-card-subtitle>{{ review.author }}</ion-card-subtitle>
+          <ion-card-subtitle pull-right>importance: {{ review.importance | percent(5) }}%</ion-card-subtitle>
+          <ion-card-subtitle>{{ review.authorName }}</ion-card-subtitle>
           <ion-card-title>{{ review.title }}</ion-card-title>
-          <span v-if="review.score > 0">positive</span>
+          <span v-if="review.rating > 3.5">positive</span>
+          <span v-else-if="review.rating > 2.0">neutral</span>
           <span v-else>negative</span>
         </ion-card-header>
         <ion-card-content>{{ review.content }}</ion-card-content>
@@ -99,94 +94,82 @@ export default {
   name: "item-detail-page",
   data() {
     return {
-      prevRoute: null,
-      item: {
-        id: 1234,
-        rank: 1,
-        name: "Omen 16t",
-        company: "Heulett-packard",
-        keywords: [
-          { name: "Performance", score: 15, type: "positive" },
-          { name: "Extreme Gaming", score: 10, type: "positive" },
-          { name: "Extreme Gaming", score: 10, type: "positive" },
-          { name: "Extreme Gaming", score: 10, type: "positive" },
-          { name: "Extreme Gaming", score: 10, type: "positive" },
-          { name: "Extreme Gaming", score: 10, type: "positive" },
-          { name: "Extreme Gaming", score: 10, type: "positive" },
-          { name: "Extreme Gaming", score: 10, type: "positive" },
-          { name: "Build Quality", score: 10, type: "negative" },
-          { name: "Build Quality", score: 10, type: "negative" },
-          { name: "Build Quality", score: 10, type: "negative" },
-          { name: "Build Quality", score: 10, type: "negative" },
-          { name: "Build Quality", score: 10, type: "negative" },
-          { name: "Build Quality", score: 10, type: "negative" }
-        ],
-        image: "/img/item-sample.jpg",
-        score: 4.7,
-        specs: [
-          "Intel® Core™ i7 processor",
-          "NVIDIA® GeForce® GTX 1050",
-          "8 GB memory; 1 TB HDD",
-          '15.6" diagonal FHD display'
-        ],
-        vendors: [
-          { name: "Amazon", link: "https://www.amazon.com" },
-          { name: "BestBuy", link: "https://www.bestbuy.com" },
-          { name: "Danawa", link: "https://danawa.com" }
-        ]
-      },
-      reviews: [
-        {
-          id: 1,
-          itemId: 1234,
-          title: "리뷰 테스트",
-          author: "김뫄뫄",
-          content: "사장님이 맛있고 음식이 친절해요.",
-          keywords: [
-            { name: "맛있다", type: "positive", originalContext: "맛있고" },
-            { name: "친절하다", type: "positive", originalContext: "친절해요" }
-          ],
-          reference: {
-            name: "Gmarket",
-            link: "http://gmarket.co.kr"
-          },
-          importance: 100,
-          score: 95
-        }
-      ]
+      item: {},
+      bookmark: null,
+      reviews: null
     };
   },
   methods: {
-    getItem(itemId) {
-      this.$http.get(`/items/${itemId}`).then(result => {
-        this.item = result.data;
+    getItem() {
+      return new Promise((onSuccess, onFailure) => {
+        this.$http.get(`/items/${this.$route.params.id}`).then(result => {
+          this.item = result.data;
+          onSuccess();
+        });
       });
     },
-    getReviews(itemId) {
-      const criteria = {
-        itemId: itemId
+    getReviews() {
+      return new Promise((onSuccess, onFailure) => {
+        this.$http.get(`/reviews?itemId=${this.item.id}`).then(result => {
+          this.reviews = result.data;
+          onSuccess();
+        });
+      });
+    },
+    getBookmark() {
+      return new Promise((onSuccess, onFailure) => {
+        const criteria = {
+          itemId: this.$route.params.id,
+          userId: this.$store.state.user
+        };
+
+        this.$http.get("/bookmarks", { params: criteria }).then(result => {
+          this.bookmark = result.data ? result.data[0] : null;
+          onSuccess();
+        });
+      });
+    },
+    addItemToBookmarks() {
+      const bookmark = {
+        user: this.$store.state.user,
+        item: this.item
       };
 
-      this.$http.get(`/reviews`, { params: criteria }).then(result => {
-        this.reviews = result.data;
+      this.$http.post(`/bookmarks`, bookmark).then(response => {
+        this.bookmark = response.data;
+        this.$action.toast("Added to bookmarks!");
       });
     },
-    addItemToBookmark() {
-      this.$http.post(`/users/bookmarks`);
+    removeItemFromBookmarks() {
+      this.$http.delete(`/bookmarks/${this.bookmark.id}`).then(response => {
+        this.bookmark = null;
+        this.$action.toast("Removed from bookmarks.");
+      });
     }
   },
-  mounted() {
-    // this method should be enabled after backend is configured
-    //this.getItem(this.$route.params.id)
-  },
-  beforeRouteEnter(to, from, next) {
-    next(vm => {
-      vm.prevRoute = from;
-    });
+  created() {
+    this.getItem()
+      .then(this.getBookmark)
+      .then(this.getReviews);
   },
   computed: {
-    isPrevExist() {
-      return this.prevRoute && this.prevRoute.matched.length !== 0;
+    positiveKeywords() {
+      if(!Object.keys(this.item).length) return [];
+      return this.item.keywords
+        .filter(keyword => keyword.count > 0)
+        .filter(keyword => keyword.rating > 2.5)
+        .sort((a, b) => {
+          return a.rating < b.rating ? 1 : a.rating > b.rating ? -1 : 0;
+        });
+    },
+    negativeKeywords() {
+      if(!Object.keys(this.item).length) return [];
+      return this.item.keywords
+        .filter(keyword => keyword.count > 0)
+        .filter(keyword => keyword.rating < 2.5)
+        .sort((a, b) => {
+          return a.rating < b.rating ? 1 : a.rating > b.rating ? -1 : 0;
+        });
     }
   }
 };

@@ -15,12 +15,12 @@ export default {
                             message: message,
                             buttons: [
                                 {
-                                    text: 'Yes',
-                                    handler: onConfirm
-                                },
-                                {
                                     text: 'No',
                                     handler: onCancel
+                                },
+                                {
+                                    text: 'Yes',
+                                    handler: onConfirm
                                 }
                             ]
                         })

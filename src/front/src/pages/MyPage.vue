@@ -27,7 +27,7 @@
     <ion-content class="ion-content">
       <section id="profile" padding text-center>
         <ion-avatar inline>
-          <ion-img :src="user.image"/>
+          <ion-img :src="user.image | base64('jpg')"/>
         </ion-avatar>
         <h1>{{ user.name }}</h1>
         <h2>{{ user.organization }}</h2>
@@ -48,16 +48,16 @@
               <ion-grid>
                 <ion-row>
                   <ion-col size="8">
-                    <ion-card-title>{{ bookmark.name }}</ion-card-title>
-                    <ion-card-subtitle>{{ bookmark.company }}</ion-card-subtitle>
+                    <ion-card-title>{{ bookmark.item.name }}</ion-card-title>
+                    <ion-card-subtitle>{{ bookmark.item.company }}</ion-card-subtitle>
                   </ion-col>
                   <ion-col size="4">
-                    <ion-img :src="bookmark.image"/>
+                    <ion-img :src="bookmark.item.image | base64('jpg')"/>
                   </ion-col>
                 </ion-row>
                 <ion-row align-items-center>
                   <ion-col size="8">
-                    <span>Added at {{ bookmark.date | moment("YYYY-MM-DD") }}</span>
+                    <span>Added at {{ bookmark.addDate | moment("YYYY-MM-DD") }}</span>
                   </ion-col>
                   <ion-col size="4" text-right>
                     <ion-button
@@ -90,48 +90,7 @@ export default {
     return {
       active: "bookmark",
       reviews: [],
-      bookmarks: [
-        {
-          id: 1,
-          item_id: 1234,
-          name: "Omen 15t",
-          company: "Heulett-Packerd",
-          image: "/img/item-sample.jpg",
-          date: "2019-05-25"
-        },
-        {
-          id: 2,
-          item_id: 1234,
-          name: "Omen 15t",
-          company: "Heulett-Packerd",
-          image: "/img/item-sample.jpg",
-          date: "2019-05-25"
-        },
-        {
-          id: 3,
-          item_id: 1234,
-          name: "Omen 15t",
-          company: "Heulett-Packerd",
-          image: "/img/item-sample.jpg",
-          date: "2019-05-25"
-        },
-        {
-          id: 4,
-          item_id: 1234,
-          name: "Omen 15t",
-          company: "Heulett-Packerd",
-          image: "/img/item-sample.jpg",
-          date: "2019-05-25"
-        },
-        {
-          id: 5,
-          item_id: 1234,
-          name: "Omen 15t",
-          company: "Heulett-Packerd",
-          image: "/img/item-sample.jpg",
-          date: "2019-05-25"
-        }
-      ]
+      bookmarks: []
     };
   },
   methods: {
@@ -162,8 +121,8 @@ export default {
     /* Backend event handlers */
     getBookmarks() {
       this.$http
-        .get(`/users/${this.$store.state.user.id}/bookmarks`)
-        .then(data => (this.bookmarks = data));
+        .get(`/bookmarks?userId=${this.$store.state.user.id}`)
+        .then(response => this.bookmarks = response.data);
     },
     deleteBookmark(bookmarkId) {
       this.$http.delete(`/bookmarks/${bookmarkId}`).then(
@@ -172,6 +131,7 @@ export default {
           this.bookmarks = this.bookmarks.filter(
             bookmark => bookmark.id != bookmarkId
           );
+          this.$action.toast("Deleted!")
         },
         () => {
           // on failed
@@ -181,7 +141,7 @@ export default {
     },
     getReviews() {
       this.$http
-        .get(`/users/${this.$store.state.user.id}/reviews`)
+        .get(`/reviews?authorId=${this.$store.state.user.id}`)
         .then(data => (this.reviews = data));
     },
     updateReview(reviewId, review) {
@@ -222,6 +182,10 @@ export default {
     user() {
       return this.$store.state.user;
     }
+  },
+  created() {
+    this.getBookmarks();
+    //this.getReviews();
   }
 };
 </script>
