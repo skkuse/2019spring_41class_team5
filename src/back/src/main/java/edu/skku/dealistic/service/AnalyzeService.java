@@ -135,4 +135,40 @@ public class AnalyzeService {
         );
         review.setKeywords(new ArrayList<>(reviewKeywordMap.values()));
     }
+/*
+    public Double analyzeImportance(RawReview review, List<CoreSentence> sentences) {
+        Integer i,j,k = 0;
+        Integer similarity=0;
+        String[] str;
+        str = review.getContent().split("\\n");
+
+        Double importance = 0.0;
+        i = str.length-1;
+        for ( j = 0; j < i;j++ ){
+            for(k = j+1; k<i; k++){
+                if(str[j].equalsIgnoreCase(str[k])){
+                    importance += 1.0;
+                }
+                else
+                    importance += 5.0;
+            }
+        }
+
+        if(review.getImageExists() ==true){
+            importance += 5.0;
+        }
+        else
+            importance += 1.0;
+
+
+        Integer avgLength = avgLength();//인자로 item
+
+        sentences.size()
+
+
+        if()
+
+        //전체 string문장이 반복되는 경우가 있는지 확인
+    }*/
+
 }
