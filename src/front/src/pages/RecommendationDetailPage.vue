@@ -22,15 +22,15 @@
     </section>
     <section padding-start padding-top>
       <div scroll-x>
-        <ion-chip color="primary" v-for="(tag, index) in recommendation.tags" :key="index">
+        <ion-chip color="primary" v-for="(keyword, index) in recommendation.keywords" :key="index">
           <ion-icon name="pricetag"/>
-          <ion-label>{{ tag }}</ion-label>
+          <ion-label>{{ keyword.name }}</ion-label>
         </ion-chip>
       </div>
     </section>
     <section>
       <h1 margin-start>Our Recommendation</h1>
-      <ion-card v-for="item in items" :key="item.rank" @click="handleItemClick(item)">
+      <ion-card v-for="item in items" :key="item.rating" @click="handleItemClick(item)">
         <ion-card-header>
           <ion-grid no-padding>
             <ion-row>
@@ -48,14 +48,17 @@
           <ion-grid no-padding>
             <ion-row>
               <ion-col size="6">
-                <img src="/img/item-sample.jpg">
+                <img :src="item.image | base64('jpg')">
               </ion-col>
               <ion-col size="6" no-padding text-right>
                 <ul class="item-keyword" no-padding>
-                  <li v-for="(keyword, index) in item.keywords" :key="index">{{ keyword }}</li>
+                  <li
+                    v-for="itemKeyword in item.keywords"
+                    :key="itemKeyword.rating"
+                  >{{ itemKeyword.keyword.name }}</li>
                 </ul>
-                <div class="item-score">
-                  {{ item.score }}
+                <div class="item-rating">
+                  {{ item.rating.toFixed(1) }}
                   <small>/ 5</small>
                 </div>
               </ion-col>
@@ -63,6 +66,10 @@
           </ion-grid>
         </ion-card-content>
       </ion-card>
+      <div id="no-result" text-center v-if="items.length == 0">
+        <h1>😐</h1>
+        <span>NO RESULT</span>
+      </div>
     </section>
   </ion-vue-page>
 </template>
@@ -72,24 +79,8 @@ export default {
   name: "recommendation-detail-page",
   data() {
     return {
-      recommendation: {
-        id: 1,
-        name: "Graphic Design",
-        description: "Laptop Description",
-        thumbnail: "/img/thumbnail-sample.jpg",
-        tags: ["asdf", "qwer", "qwer", "qwer", "qwer", "qwer", "qwer", "qwer"]
-      },
-      items: [
-        {
-          id: 1234,
-          rank: 1,
-          name: "Omet 16t",
-          company: "Heulett-packard",
-          keywords: ["Performance", "Extreme Gaming", "Build Quality"],
-          image: "/img/item-sample.jpg",
-          score: 4.7
-        }
-      ]
+      recommendation: {},
+      items: []
     };
   },
   methods: {
@@ -98,6 +89,28 @@ export default {
         path: `recommendation/item-detail/${item.id}`
       });
     }
+  },
+  created() {
+    this.$http.get(`/recommendations/${this.$route.params.id}`).then(result => {
+      this.recommendation = result.data;
+      this.$http
+        .get(`/items?recommendationId=${this.recommendation.id}`)
+        .then(result => {
+          this.items = result.data
+            .sort((a, b) => {
+              return a.rating < b.rating ? 1 : a.rating > b.rating ? -1 : 0;
+            })
+            .map((item, index) => {
+              item.rank = index + 1;
+              item.keywords = item.keywords
+                .sort((a, b) => {
+                  return a.rating < b.rating ? 1 : a.rating > b.rating ? -1 : 0;
+                })
+                .slice(0, 3);
+              return item;
+            });
+        });
+    });
   }
 };
 </script>
@@ -116,6 +129,10 @@ export default {
   margin-bottom: 0;
 }
 
+.rank {
+  font-size: large;
+  font-weight: bold;
+}
 .item-keyword {
   list-style: none;
   display: flex;
@@ -133,8 +150,30 @@ export default {
 .item-keyword li:nth-child(3) {
   font-size: smaller;
 }
-.item-score {
+.item-rating {
   font-weight: bold;
   font-size: xx-large;
+}
+
+#no-result {
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  padding-top: -3em;
+  align-items: center;
+  justify-content: center;
+}
+
+#no-result h1 {
+  margin: 0;
+  font-size: 50pt;
+}
+
+#result ion-card-title {
+  font-size: 1.2em;
+}
+#result ion-card ion-img {
+  height: 6em;
+  width: 6em;
 }
 </style>

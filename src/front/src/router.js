@@ -16,7 +16,7 @@ const router = new IonicVueRouter({
       },
       redirect: '/ranking',
       children: [{
-          path: "/ranking",
+          path: "ranking",
           components: {
             ranking: () => import("@/pages/RankPage.vue")
           },
@@ -25,7 +25,16 @@ const router = new IonicVueRouter({
           },
         },
         {
-          path: "/mypage",
+          path: "ranking/item-detail/:id",
+          components: {
+            ranking: () => import("@/pages/ItemDetailPage.vue"),
+          },
+          meta: {
+            permissions: ["user", "admin"]
+          }
+        },
+        {
+          path: "mypage",
           components: {
             mypage: () => import("@/pages/MyPage.vue")
           },
@@ -34,7 +43,16 @@ const router = new IonicVueRouter({
           }
         },
         {
-          path: "/recommendation",
+          path: "mypage/item-detail/:id",
+          components: {
+            mypage: () => import("@/pages/ItemDetailPage.vue"),
+          },
+          meta: {
+            permissions: ["user", "admin"]
+          }
+        },
+        {
+          path: "recommendation",
           components: {
             recommendation: () => import("@/pages/RecommendationPage.vue")
           },
@@ -43,7 +61,16 @@ const router = new IonicVueRouter({
           }
         },
         {
-          path: "/recommendation/:id",
+          path: "recommendation/detail/:recommendationId/item-detail/:id",
+          components: {
+            recommendation: () => import("@/pages/ItemDetailPage.vue"),
+          },
+          meta: {
+            permissions: ["user", "admin"]
+          }
+        },
+        {
+          path: "recommendation/detail/:id",
           components: {
             recommendation: () => import("@/pages/RecommendationDetailPage.vue")
           },
@@ -52,7 +79,7 @@ const router = new IonicVueRouter({
           }
         },
         {
-          path: "/search",
+          path: "search",
           components: {
             search: () => import("@/pages/SearchPage.vue")
           },
@@ -61,17 +88,13 @@ const router = new IonicVueRouter({
           }
         },
         {
-          path: "/item-detail/:id",
+          path: "search/item-detail/:id",
           components: {
-            ranking: () => import("@/pages/ItemDetailPage.vue")
+            search: () => import("@/pages/ItemDetailPage.vue"),
           },
           meta: {
             permissions: ["user", "admin"]
-          },
-          alias: [
-            "/ranking/item-detail/:id",
-            "/recommendation/item-detail/:id"
-          ]
+          }
         }
       ]
     },

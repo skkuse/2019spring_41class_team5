@@ -4,9 +4,7 @@
     Author   : Junhyun Kim <junbread@skku.edu>
     Functions: - [x] View/Edit user profiles
                - [x] View/Delete bookmarks
-               - [ ] View/Edit/Delete user reviews
                - [x] Logout
-               - [ ] Dynamic loading for review, bookmark lists
     Changelog: 
 -->
 <template>
@@ -27,23 +25,23 @@
     <ion-content class="ion-content">
       <section id="profile" padding text-center>
         <ion-avatar inline>
-          <ion-img :src="user.image | base64('jpg')"/>
+          <ion-img :src="user.profileImage" v-if="user.profileImage != null && !user.profileImage.endsWith('undefined')"/>
+          <ion-img src="/img/no-image.png" v-else />
         </ion-avatar>
         <h1>{{ user.name }}</h1>
         <h2>{{ user.organization }}</h2>
         <ion-button shape="round" size="small" @click="handleEditProfileButtonClick()">Edit</ion-button>
       </section>
       <section id="content" padding>
-        <ion-segment @ionChange="active = $event.detail.value">
-          <ion-segment-button value="bookmark" :checked="active == 'bookmark'">
-            <ion-label>Bookmarks</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="review" :checked="active == 'review'">
-            <ion-label>Reviews</ion-label>
-          </ion-segment-button>
-        </ion-segment>
-        <div id="list-bookmark" v-if="active == 'bookmark'">
-          <ion-card v-for="bookmark in bookmarks" :key="bookmark.id" no-margin margin-top>
+        <div id="list-bookmark">
+          <h2 no-margin>Bookmarks</h2>
+          <ion-card
+            v-for="bookmark in bookmarks"
+            :key="bookmark.id"
+            no-margin
+            margin-top
+            @click="handleItemClick(bookmark)"
+          >
             <ion-card-header>
               <ion-grid>
                 <ion-row>
@@ -65,7 +63,7 @@
                       fill="clear"
                       no-margin
                       no-padding
-                      @click="handleBookmarkDeleteButtonClick(bookmark.id)"
+                      @click.stop="handleBookmarkDeleteButtonClick(bookmark)"
                     >
                       <ion-icon name="trash"/>
                       <span>Delete</span>
@@ -76,7 +74,6 @@
             </ion-card-header>
           </ion-card>
         </div>
-        <div id="list-review" v-if="active == 'review'">I am Review</div>
       </section>
     </ion-content>
   </ion-page>
@@ -88,7 +85,6 @@ export default {
   name: "my-page",
   data() {
     return {
-      active: "bookmark",
       reviews: [],
       bookmarks: []
     };
@@ -110,19 +106,29 @@ export default {
             }
           }
         })
-        .then(a => a.present());
+        .then(a => {
+          a.onDidDismiss().then(() => {
+            this.$store.dispatch("updateUser", this.user);
+          });
+          a.present();
+        });
     },
-    handleBookmarkDeleteButtonClick(bookmarkId) {
+    handleBookmarkDeleteButtonClick(bookmark) {
       this.$action
         .confirm("Do you really want to delete this?")
-        .then(() => this.deleteBookmark(bookmarkId));
+        .then(() => this.deleteBookmark(bookmark.id));
+    },
+    handleItemClick(bookmark) {
+      this.$router.push({
+        path: `/mypage/item-detail/${bookmark.item.id}`
+      });
     },
 
     /* Backend event handlers */
     getBookmarks() {
       this.$http
         .get(`/bookmarks?userId=${this.$store.state.user.id}`)
-        .then(response => this.bookmarks = response.data);
+        .then(response => (this.bookmarks = response.data));
     },
     deleteBookmark(bookmarkId) {
       this.$http.delete(`/bookmarks/${bookmarkId}`).then(
@@ -131,7 +137,7 @@ export default {
           this.bookmarks = this.bookmarks.filter(
             bookmark => bookmark.id != bookmarkId
           );
-          this.$action.toast("Deleted!")
+          this.$action.toast("Deleted!");
         },
         () => {
           // on failed

@@ -15,7 +15,8 @@ export default {
 
     if (token && user) {
       this.$store.dispatch("preLogined", { token, user: JSON.parse(user) });
-      this.$store.dispatch("setSearchHistories", JSON.parse(searchHistories));
+      if(searchHistories)
+        this.$store.dispatch("setSearchHistories", JSON.parse(searchHistories));
     }
 
     // Authorization
