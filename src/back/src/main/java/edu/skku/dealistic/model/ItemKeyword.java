@@ -36,5 +36,13 @@ public class ItemKeyword {
 
     private Long count = 0L;
 
+    @JsonIgnore
+    public Boolean isPositive() {
+        return rating >= 2.0;
+    }
+
+    public Boolean isNegative() {
+        return rating < 2.0;
+    }
 }
 

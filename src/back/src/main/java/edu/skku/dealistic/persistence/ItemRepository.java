@@ -12,10 +12,10 @@ import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Integer> {
 
-    List<Item> findAllByCategory(ItemCategory category);
-
-    // List<Item> findAllByKeywords(List<ItemKeyword> keywords);
+    List<Item> findItemsByCategory(ItemCategory category);
 
     @EntityGraph("Item.detail")
     Optional<Item> findDetailById(Integer id);
+
+    List<Item> findByNameContaining(String name);
 }

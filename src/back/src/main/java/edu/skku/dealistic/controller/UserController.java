@@ -12,6 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.security.RolesAllowed;
 import java.util.List;
 
+/**
+ * User Controller.
+ * Main Features:
+ * - CRUD users
+ *
+ * @author Junhyun Kim
+ */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)

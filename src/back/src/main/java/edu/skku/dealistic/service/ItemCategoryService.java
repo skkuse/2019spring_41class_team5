@@ -7,6 +7,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Item Category Service.
+ * Main Features:
+ * - Provide Item Category
+ *
+ * @author Junhyun Kim
+ */
 @Service
 @RequiredArgsConstructor
 public class ItemCategoryService {

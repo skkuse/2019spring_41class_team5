@@ -18,6 +18,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Security Configuration.
+ * Main Features:
+ * - Encode password
+ * - Validate request user token
+ * - Authorization (anonymous user only can access /auth, /error.)
+ *
+ * @author Junhyun Kim
+ */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(jsr250Enabled = true, prePostEnabled = true)

@@ -1,6 +1,5 @@
 package edu.skku.dealistic.security;
 
-import edu.skku.dealistic.security.AuthUser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +10,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
+/**
+ * User Token Provider
+ * Main Features:
+ * - Generates User Token
+ * - Validates User Token
+ *
+ * @author Junhyun Kim
+ */
 @Component
 public class JwtTokenProvider {
 

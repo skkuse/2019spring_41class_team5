@@ -1,7 +1,11 @@
 package edu.skku.dealistic.controller;
 
+import edu.skku.dealistic.exception.NotFoundException;
+import edu.skku.dealistic.model.ItemCategory;
 import edu.skku.dealistic.model.Recommendation;
 import edu.skku.dealistic.payload.ApiResponse;
+import edu.skku.dealistic.persistence.ItemCategoryRepository;
+import edu.skku.dealistic.persistence.RecommendationRepository;
 import edu.skku.dealistic.service.RecommendationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -9,6 +13,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Recommendation Controller.
+ * Main Features:
+ * - CRUD recommendations
+ *
+ * @author Junhyun Kim
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/recommendations", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -16,10 +27,18 @@ public class RecommendationController {
 
     private final RecommendationService recommendationService;
 
+    private final RecommendationRepository recommendationRepository;
+
+    private final ItemCategoryRepository itemCategoryRepository;
+
     @GetMapping
-    public List<Recommendation> getRecommendations() {
-        return recommendationService.getRecommendations();
+    public List<Recommendation> getRecommendations(
+            @RequestParam Integer itemCategoryId
+    ) {
+        ItemCategory category = itemCategoryRepository.findById(itemCategoryId).orElseThrow(NotFoundException::new);
+        return recommendationRepository.findRecommendationsByCategory(category);
     }
+
 
     @GetMapping("/{id}")
     public Recommendation getRecommendation(@PathVariable Integer id) {

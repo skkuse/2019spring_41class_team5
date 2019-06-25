@@ -8,6 +8,13 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 
+/**
+ * User Service.
+ * Main Features:
+ * - CRUD User Object
+ *
+ * @author Junhyun Kim
+ */
 @Service
 @RequiredArgsConstructor
 public class UserService {

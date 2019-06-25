@@ -7,6 +7,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/**
+ * Fallback controller when error is occured.
+ * Main Features:
+ * - Provide error response
+ *
+ * @author Junhyun Kim
+ */
 @RestControllerAdvice
 public class FailResponseController {
 

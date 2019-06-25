@@ -8,6 +8,13 @@ import javax.persistence.Converter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Hibernate Converter
+ * Main Features:
+ * - Convert Json to Java list. or reverse.
+ *
+ * @author Junhyun Kim
+ */
 @Converter
 public class ListToJsonConverter implements AttributeConverter<List<String>, String> {
 
