@@ -1,6 +1,7 @@
 package edu.skku.dealistic.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
@@ -17,10 +18,10 @@ import java.time.LocalDateTime;
 // Lombok Annotations
 @Data
 @Builder
+@ToString(of = {"id"})
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties({"name", "itemDetailUrl", "reviewDetailUrl"})
-@ToString(of = {"id"})
+// Jackson Annotations
 public class VendorLink {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,11 +32,10 @@ public class VendorLink {
     private String vendorItemId;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(nullable = false)
     private Item item;
 
-    //@JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private Vendor vendor;
@@ -44,15 +44,18 @@ public class VendorLink {
     @Column
     private LocalDateTime lastCrawledDateTime;
 
+    @JsonIgnore
     public String getName() {
         if (vendor == null) return null;
         return vendor.getName();
     }
 
+    @JsonIgnore
     public String getItemDetailUrl() {
         return vendor.getItemDetailUrl(this);
     }
 
+    @JsonIgnore
     public String getReviewDetailUrl() {
         return vendor.getReviewDetailUrl(this);
     }

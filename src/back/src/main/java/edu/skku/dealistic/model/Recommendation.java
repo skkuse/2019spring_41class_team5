@@ -23,6 +23,10 @@ public class Recommendation {
     @Column
     private String description;
 
+    @Lob
+    @Column
+    private String thumbnail; // base64
+
     @ManyToOne(targetEntity = ItemCategory.class)
     @JoinColumn
     private ItemCategory category;
@@ -38,4 +42,5 @@ public class Recommendation {
             inverseJoinColumns = @JoinColumn(name = "keyword_id")
     )
     private List<Keyword> keywords;
+
 }

@@ -15,13 +15,18 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-
+/**
+ * Authentication Controller.
+ * Main Features:
+ * - Login/Logout
+ * - Sign up
+ * - Id existence check
+ *
+ * @author Junhyun Kim
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/auth", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -73,5 +78,10 @@ public class AuthController {
         userAuthService.signUp(user);
 
         return ApiResponse.SUCCESS;
+    }
+
+    @GetMapping("/exists/{id}")
+    public Boolean existsUser(@PathVariable String id) {
+        return userAuthService.isUserIdExist(id);
     }
 }

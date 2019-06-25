@@ -24,6 +24,6 @@ public class SentenceUtil {
     public static Double sentiment(CoreSentence sentence) {
         Double score = Integer.valueOf(RNNCoreAnnotations.getPredictedClass(sentence.sentimentTree())).doubleValue();
 
-        return Double.min(score * 1.2, 5.0);
+        return Double.min(score * 1.2, 5.0); // original score is 0 ~ 4, so multiply by 1.2 to make 5
     }
 }

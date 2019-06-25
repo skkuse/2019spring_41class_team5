@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface KeywordRepository extends JpaRepository<Keyword, Integer> {
 
-    List<Keyword> getKeywordsByCategory(ItemCategory category);
+    List<Keyword> findKeywordsByCategory(ItemCategory category);
 }

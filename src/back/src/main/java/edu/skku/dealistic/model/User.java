@@ -36,7 +36,7 @@ public class User {
 
     @Lob
     @Column
-    private Byte[] profileImage;
+    private String profileImage; // base64
 
     @JsonIgnore
     @OneToMany(

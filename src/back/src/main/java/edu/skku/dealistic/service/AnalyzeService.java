@@ -14,10 +14,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+/**
+ * Analyzer Service.
+ * Main Features:
+ * - Analyze raw reviews, and return review list
+ *
+ * @author Muhammad Dahab Shakil, Junhyun Kim
+ */
 @RequiredArgsConstructor
 @Service
 public class AnalyzeService {
@@ -96,7 +103,7 @@ public class AnalyzeService {
         List<Keyword> keywords = review.getItem().getCategory().getKeywords();
 
         // Initialize review keywords
-        Map<Keyword, ReviewKeyword> reviewKeywordMap = new HashMap<>();
+        Map<Keyword, ReviewKeyword> reviewKeywordMap = new ConcurrentHashMap<>(); // THIS WAS THE PROBLEM! Changed to ConcurrentHashMap.
         keywords.forEach(keyword -> {
             ReviewKeyword reviewKeyword = new ReviewKeyword();
             reviewKeyword.setKeyword(keyword);
@@ -126,8 +133,9 @@ public class AnalyzeService {
                                             .ifPresent(keyword -> reviewKeywordMap.get(keyword).addRating(sentiment))
                             );
                 });
-        totalSentiment.updateAndGet(v -> v / sentences.size()); // calculate average of sentiment
-
+        if (sentences.size() > 0)
+            totalSentiment.updateAndGet(v -> v / sentences.size()); // calculate average of sentiment
+        else totalSentiment.updateAndGet(v -> 2.5);
         // Mix with original rating, for correctness.
         review.setRating(
                 review.getOriginalRating() * (1 - REVIEW_RATING_FEEDBACK_RATIO)

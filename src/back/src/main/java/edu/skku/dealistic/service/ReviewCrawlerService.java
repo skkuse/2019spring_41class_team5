@@ -222,7 +222,7 @@ public class ReviewCrawlerService {
     public synchronized List<RawReview> doCrawlingReviews(List<VendorLink> vendorLinks) {
         List<RawReview> rawReviews = new ArrayList<>();
 
-        vendorLinks.forEach(link -> crawlers.forEach(crawler -> {
+        vendorLinks.parallelStream().forEach(link -> crawlers.forEach(crawler -> {
             if (crawler.isCompatible(link)) rawReviews.addAll(crawler.doCrawling(link));
         }));
 

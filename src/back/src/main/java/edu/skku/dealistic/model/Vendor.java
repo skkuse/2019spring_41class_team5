@@ -1,6 +1,7 @@
 package edu.skku.dealistic.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,23 +27,18 @@ public class Vendor {
     @Column(length = 200, nullable = false)
     private String url; // Example: https://amazon.com
 
-    @JsonIgnore
     @Column(length = 500, nullable = false)
     private String itemDetailPrefix;
 
-    @JsonIgnore
     @Column(length = 500, nullable = false)
     private String itemDetailPostfix;
 
-    @JsonIgnore
     @Column(length = 500, nullable = false)
     private String reviewDetailPrefix; // Example: /product-reviews/
 
-    @JsonIgnore
     @Column(length = 500, nullable = false)
     private String reviewDetailPostfix; // Example: reviewerType=all_reviews&sortBy=recent
 
-    @JsonIgnore
     @Column(length = 100, nullable = false)
     private String pageParam; // Example: pageNumber
 

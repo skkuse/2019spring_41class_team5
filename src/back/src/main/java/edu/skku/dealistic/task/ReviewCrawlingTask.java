@@ -1,8 +1,5 @@
 package edu.skku.dealistic.task;
 
-// This class should implement scheudling https://spring.io/guides/gs/scheduling-tasks/
-//This class automatically crawls reviews and analyzes it and stores it in the data base
-
 import edu.skku.dealistic.model.*;
 import edu.skku.dealistic.persistence.ItemRepository;
 import edu.skku.dealistic.persistence.KeywordRepository;
@@ -11,15 +8,22 @@ import edu.skku.dealistic.persistence.VendorLinkRepository;
 import edu.skku.dealistic.service.AnalyzeService;
 import edu.skku.dealistic.service.ReviewCrawlerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//this will crawl data and analyze it and store to data base
+/**
+ * Review Crawling Task
+ * This class automatically crawls reviews and analyzes it and stores it in the data base
+ *
+ * @author Doyeong Yoo, Junhyun Kim
+ */
 @Component
 @RequiredArgsConstructor
 public class ReviewCrawlingTask {
@@ -39,7 +43,7 @@ public class ReviewCrawlingTask {
     private final KeywordRepository keywordRepository;
 
 
-    //@Scheduled(fixedDelay = 100000)
+    @Scheduled(fixedDelay = 100000)
     @Transactional
     public void doCrawling() {
         List<VendorLink> vendorLinks = vendorLinkRepository
@@ -93,10 +97,11 @@ public class ReviewCrawlingTask {
                     item.setRating(weightedAverageRating);
 
                     // If item keywords are not exist
-                    if (item.getKeywords() == null || item.getKeywords().isEmpty()) {
-                        item.setKeywords(
+                    if (item.getKeywords() == null) item.setKeywords(new ArrayList<>());
+                    if (item.getKeywords().isEmpty()) {
+                        item.getKeywords().addAll(
                                 keywordRepository
-                                        .getKeywordsByCategory(item.getCategory())
+                                        .findKeywordsByCategory(item.getCategory())
                                         .stream()
                                         .map(keyword -> ItemKeyword.builder().item(item).keyword(keyword).build())
                                         .collect(Collectors.toList()));

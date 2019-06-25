@@ -5,18 +5,22 @@ import edu.skku.dealistic.exception.NotFoundException;
 import edu.skku.dealistic.model.Item;
 import edu.skku.dealistic.model.Review;
 import edu.skku.dealistic.model.User;
-import edu.skku.dealistic.payload.Request;
 import edu.skku.dealistic.persistence.ItemRepository;
 import edu.skku.dealistic.persistence.ReviewRepository;
 import edu.skku.dealistic.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Example;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Review Controller.
+ * Main Features:
+ * - CRUD bookmarks
+ *
+ * @author Junhyun Kim
+ */
 @RestController
 @RequiredArgsConstructor
 public class ReviewController {

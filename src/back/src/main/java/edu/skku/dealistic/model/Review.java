@@ -2,6 +2,9 @@ package edu.skku.dealistic.model;
 
 import edu.skku.dealistic.exception.NotFoundException;
 import lombok.*;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.Subselect;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -66,7 +69,8 @@ public class Review {
     @OneToMany(
             targetEntity = ReviewKeyword.class,
             orphanRemoval = true,
-            cascade = CascadeType.ALL)
+            cascade = CascadeType.ALL
+    )
     @JoinColumn(name = "review_id")
     private List<ReviewKeyword> keywords;
 

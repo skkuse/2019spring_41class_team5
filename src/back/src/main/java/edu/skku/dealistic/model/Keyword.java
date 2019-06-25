@@ -27,12 +27,10 @@ public class Keyword {
     @JoinColumn(nullable = false)
     private ItemCategory category;
 
-    @JsonIgnore
     @Convert(converter = ListToCsvConverter.class)
     @Column(length = 1000)
     private List<String> synonyms;
 
-    @JsonIgnore
     @Convert(converter = ListToCsvConverter.class)
     @Column(length = 1000)
     private List<String> antonyms;

@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -24,6 +25,7 @@ public class ItemCrawlerServiceTest {
     private ItemRepository itemRepository;
 
     @Test
+    @Rollback(false)
     @Transactional
     public void imageInsertTest() throws IOException {
         Map<Integer, byte[]> imageMap = new HashMap<>();
