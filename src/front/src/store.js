@@ -29,6 +29,9 @@ export default new Vuex.Store({
     },
     setSearchHistories(context, histories) {
       this.state.searchHistories = histories;
+    },
+    setUser(state, newUser) {
+      this.state.user = newUser;
     }
   },
   actions: {
@@ -99,6 +102,13 @@ export default new Vuex.Store({
     deleteSearchHistoryAll(context) {
       this.commit('deleteSearchHistoryAll');
       localStorage.removeItem('searchHistories');
+    },
+    updateUser(context, newUser) {
+      this.commit('setUser', newUser);
+      localStorage.user = JSON.stringify(newUser);
+
+      Vue.prototype.$http.patch(`/users/${newUser.id}`, newUser);
+
     }
   }
 });

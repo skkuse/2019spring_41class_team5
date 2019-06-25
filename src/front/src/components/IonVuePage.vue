@@ -11,6 +11,7 @@
           <slot name="toolbar-end"></slot>
         </ion-buttons>
       </ion-toolbar>
+      <slot name="toolbar-additional"></slot>
     </ion-header>
     <ion-content class="ion-content">
       <slot></slot>

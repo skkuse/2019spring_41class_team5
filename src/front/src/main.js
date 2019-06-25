@@ -4,6 +4,8 @@ import Ionic from '@ionic/vue'
 import Moment from 'vue-moment'
 import Axios from 'axios'
 import Action from './util/action'
+import Base64 from './util/base64'
+import VeeValidate from 'vee-validate'
 
 // Import root components
 import App from './App.vue'
@@ -20,17 +22,23 @@ import './theme/global.scss'
 // Import global components
 import IonVuePage from './components/IonVuePage.vue'
 import IonVueModal from './components/IonVueModal.vue'
+import TextHighlight from 'vue-text-highlight'
+import VueCheckView from 'vue-check-view'
 
 Vue.config.productionTip = false
 
 // Library integration
 Vue.use(Moment)
 Vue.use(Action)
+Vue.use(Base64)
 Vue.use(Ionic)
+Vue.use(VeeValidate)
+Vue.use(VueCheckView)
 
 // Global component integration
 Vue.component('ion-vue-page', IonVuePage)
 Vue.component('ion-vue-modal', IonVueModal)
+Vue.component('text-highlight', TextHighlight)
 
 // HTTP config
 Vue.prototype.$http = Axios.create({

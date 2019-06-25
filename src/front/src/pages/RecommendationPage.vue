@@ -9,10 +9,12 @@
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-content">
-      <section v-for="category in categories" :key="category.id">
+      <section v-for="category in categories" :key="category.id" padding-top>
         <h2 no-margin margin-start>{{ category.name }}</h2>
         <div scroll-x>
-          <ion-card v-for="recommendation in category.recommendations" :key="recommendation.id"
+          <ion-card
+            v-for="recommendation in recommendations"
+            :key="recommendation.id"
             @click="handleRecommendationDetailButtonClick(recommendation)"
           >
             <ion-img :src="recommendation.thumbnail"/>
@@ -40,35 +42,8 @@ export default {
   name: "recommendation-page",
   data() {
     return {
-      categories: [
-        {
-          id: 1,
-          name: "Laptop",
-          recommendations: [
-            {
-              id: 1,
-              name: "for Graphic Design",
-              description: "Laptop Description",
-              thumbnail: "/img/thumbnail-sample.jpg",
-              tags: ["asdf", "qwer", "qwer", "qwer", "qwer", "qwer", "qwer", "qwer"]
-            },
-            {
-              id: 2,
-              name: "for Graphic Design",
-              description: "Laptop Description",
-              thumbnail: "/img/thumbnail-sample.jpg",
-              tags: ["asdf", "qwer", "qwer", "qwer", "qwer", "qwer", "qwer", "qwer"]
-            },
-            {
-              id: 3,
-              name: "for Graphic Design",
-              description: "Laptop Description",
-              thumbnail: "/img/thumbnail-sample.jpg",
-              tags: ["asdf", "qwer", "qwer", "qwer", "qwer", "qwer", "qwer", "qwer"]
-            }
-          ]
-        }
-      ]
+      categories: [],
+      recommendations: []
     };
   },
   methods: {
@@ -85,8 +60,20 @@ export default {
         .then(a => a.present());
     },
     handleRecommendationDetailButtonClick(recommendation) {
-      this.$router.push(`/recommendation/${recommendation.id}`);
+      this.$router.push({path: `/recommendation/detail/${recommendation.id}`});
     }
+  },
+  created() {
+      this.$http.get(`/item-categories`).then(result => {
+        this.categories = result.data;
+        result.data.forEach(category => {
+          this.$http
+            .get(`/recommendations?itemCategoryId=${category.id}`)
+            .then(result => {
+              this.recommendations = result.data;
+            });
+        })
+      });
   }
 };
 </script>

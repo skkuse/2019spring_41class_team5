@@ -18,7 +18,7 @@
       </ion-item>
       <ion-item id="item-profile">
         <ion-label position="stacked">Profile Image</ion-label>
-        <ion-img :src="user.image"/>
+        <ion-img :src="user.profileImage"/>
         <ion-button shape="clear" @click="handleProfileImageUploadButtonClick()">Change</ion-button>
         <input type="file" ref="inputProfileImage" accept="image/*" @change="changePreview" hidden>
       </ion-item>
@@ -39,17 +39,11 @@ export default {
     changePreview(event) {
       const input = event.target;
       if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.readAsDataURL(input.files[0]);
-        reader.onload = e => {
-          console.log(e);
-          this.user.image = e.target.result;
-        };
+        this.$base64.encode(input.files[0]).then(base64 => {
+          this.user.profileImage = base64;
+        });
       }
     },
-    close() {
-      this.$ionic.modalController.dismiss();
-    }
   }
 };
 </script>

@@ -11,6 +11,19 @@
 -->
 <template>
   <ion-vue-page page-title="Item Detail" show-back="true">
+    <ion-toolbar slot="toolbar-additional">
+      <ion-segment @ionChange="handleReviewFilterChange($event.detail.value)">
+        <ion-segment-button value="all" :checked="active == 'all'">
+          <ion-label>All</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="positive" :checked="active == 'positive'">
+          <ion-label>Positive</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="negative" :checked="active == 'negative'">
+          <ion-label>Negative</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-toolbar>
     <section id="item-detail" margin>
       <ion-grid>
         <ion-row>
@@ -31,7 +44,7 @@
           <ion-col size="6">
             <ul id="item-vendors">
               <li v-for="(vendorLink, index) in item.vendorLinks" :key="index">
-                <a :href="vendorLink.vendor.itemDetailUrl">{{ vendorLink.vendor.name }}</a>
+                <a :href="getUrl(vendorLink)">{{ vendorLink.vendor.name }}</a>
               </li>
             </ul>
           </ion-col>
@@ -61,12 +74,18 @@
           <h2>Most mentioned keywords</h2>
           <ion-col size="6">
             <ul id="review-keywords-positive" class="review-keywords">
-              <li v-for="(iKeyword, index) in positiveKeywords" :key="index">{{ iKeyword.keyword.name }}</li>
+              <li
+                v-for="(iKeyword, index) in positiveKeywords"
+                :key="index"
+              >{{ iKeyword.keyword.name }} (+)</li>
             </ul>
           </ion-col>
           <ion-col size="6" text-right>
             <ul id="review-keywords-negative" class="review-keywords">
-              <li v-for="(iKeyword, index) in negativeKeywords" :key="index">{{ iKeyword.keyword.name }}</li>
+              <li
+                v-for="(iKeyword, index) in negativeKeywords"
+                :key="index"
+              >(-) {{ iKeyword.keyword.name }}</li>
             </ul>
           </ion-col>
         </ion-row>
@@ -74,6 +93,21 @@
     </section>
     <section id="review-detail">
       <h1 margin-start>Item Reviews</h1>
+      <ion-segment
+        padding-start
+        padding-end
+        @ionChange="handleReviewFilterChange($event.detail.value)"
+      >
+        <ion-segment-button value="all" :checked="active == 'all'">
+          <ion-label>All</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="positive" :checked="active == 'positive'">
+          <ion-label>Positive</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="negative" :checked="active == 'negative'">
+          <ion-label>Negative</ion-label>
+        </ion-segment-button>
+      </ion-segment>
       <ion-card v-for="review in reviews" :key="review.id">
         <ion-card-header>
           <ion-card-subtitle pull-right>importance: {{ review.importance | percent(5) }}%</ion-card-subtitle>
@@ -83,7 +117,9 @@
           <span v-else-if="review.rating > 2.0">neutral</span>
           <span v-else>negative</span>
         </ion-card-header>
-        <ion-card-content>{{ review.content }}</ion-card-content>
+        <ion-card-content>
+          <text-highlight :queries="allKeywords">{{ review.content }}</text-highlight>
+        </ion-card-content>
       </ion-card>
     </section>
   </ion-vue-page>
@@ -96,10 +132,26 @@ export default {
     return {
       item: {},
       bookmark: null,
-      reviews: null
+      reviews: null,
+      originalReviews: null,
+      active: "all"
     };
   },
   methods: {
+    handleReviewFilterChange(filter) {
+      this.active = filter;
+      switch (filter) {
+        case "all":
+          this.reviews = this.originalReviews;
+          break;
+        case "positive":
+          this.reviews = this.positiveReviews;
+          break;
+        case "negative":
+          this.reviews = this.negativeReviews;
+          break;
+      }
+    },
     getItem() {
       return new Promise((onSuccess, onFailure) => {
         this.$http.get(`/items/${this.$route.params.id}`).then(result => {
@@ -111,7 +163,8 @@ export default {
     getReviews() {
       return new Promise((onSuccess, onFailure) => {
         this.$http.get(`/reviews?itemId=${this.item.id}`).then(result => {
-          this.reviews = result.data;
+          this.originalReviews = result.data;
+          this.reviews = this.originalReviews;
           onSuccess();
         });
       });
@@ -120,7 +173,7 @@ export default {
       return new Promise((onSuccess, onFailure) => {
         const criteria = {
           itemId: this.$route.params.id,
-          userId: this.$store.state.user
+          userId: this.$store.state.user.id
         };
 
         this.$http.get("/bookmarks", { params: criteria }).then(result => {
@@ -145,6 +198,14 @@ export default {
         this.bookmark = null;
         this.$action.toast("Removed from bookmarks.");
       });
+    },
+    getUrl(vendorLink) {
+      return (
+        vendorLink.vendor.url +
+        vendorLink.vendor.itemDetailPrefix +
+        vendorLink.vendorItemId +
+        vendorLink.vendor.itemDetailPostfix
+      );
     }
   },
   created() {
@@ -154,7 +215,7 @@ export default {
   },
   computed: {
     positiveKeywords() {
-      if(!Object.keys(this.item).length) return [];
+      if (!Object.keys(this.item).length) return [];
       return this.item.keywords
         .filter(keyword => keyword.count > 0)
         .filter(keyword => keyword.rating > 2.5)
@@ -163,13 +224,29 @@ export default {
         });
     },
     negativeKeywords() {
-      if(!Object.keys(this.item).length) return [];
+      if (!Object.keys(this.item).length) return [];
       return this.item.keywords
         .filter(keyword => keyword.count > 0)
-        .filter(keyword => keyword.rating < 2.5)
+        .filter(keyword => keyword.rating < 2.0)
         .sort((a, b) => {
           return a.rating < b.rating ? 1 : a.rating > b.rating ? -1 : 0;
         });
+    },
+    allKeywords() {
+      let keywords = [];
+      this.item.keywords.forEach(ik => {
+        keywords.push(ik.keyword.name);
+        keywords.concat(ik.keyword.synonyms);
+        keywords.concat(ik.keyword.antonyms);
+      });
+
+      return keywords;
+    },
+    positiveReviews() {
+      return this.originalReviews.filter(review => review.rating > 2.5);
+    },
+    negativeReviews() {
+      return this.originalReviews.filter(review => review.rating < 2.0);
     }
   }
 };

@@ -18,7 +18,7 @@
         >
           <ion-select-option
             v-for="(category, index) in categories"
-            :key="category.index"
+            :key="category.id"
             :value="index"
           >{{ category.name }}</ion-select-option>
         </ion-select>
@@ -36,7 +36,14 @@
         >
       </ion-item>
       <ion-item>
-        <ion-label position="stacked">Tags</ion-label>
+        <ion-label position="stacked">Keywords</ion-label>
+        <ion-select multiple @ionChange="selectedKeywords = $event.target.value">
+          <ion-select-option
+            v-for="(keyword, index) in keywords"
+            :key="index"
+            :value="index"
+          >{{ keyword.name }}</ion-select-option>
+        </ion-select>
       </ion-item>
     </ion-list>
     <ion-button expand="block" @click="handleUploadButtonClick()">
@@ -55,10 +62,12 @@ export default {
         description: "",
         category: "",
         thumbnail: "",
-        tags: []
+        keywords: []
       },
       categories: [],
-      selectedCategory: null
+      keywords: [],
+      selectedCategory: null,
+      selectedKeywords: []
     };
   },
   methods: {
@@ -66,25 +75,36 @@ export default {
       this.$refs.inputThumbnailImage.click();
     },
     handleUploadButtonClick() {
-      this.$http.post(`/recommendations`, recommendation).then(() => {
+      if (
+        !this.recommendation.name ||
+        !this.recommendation.description ||
+        !this.recommendation.category ||
+        !this.recommendation.thumbnail ||
+        !this.recommendation.keywords.length
+      ) {
+        this.$action.toast("You have some missing input. Please check again.");
+        return;
+      }
+      this.$http.post(`/recommendations`, this.recommendation).then(() => {
         this.$action.toast("Added Recommendation!");
       });
 
-      this.close();
-    },
-    close() {
       this.$ionic.modalController.dismiss();
     },
     changePreview(event) {
       const input = event.target;
       if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          this.recommendation.thumbnail = e.target.result;
-        };
-
-        reader.readAsDataURL(input.files[0]);
+        this.$base64.encode(input.files[0]).then(result => {
+          this.recommendation.thumbnail = result;
+        });
       }
+    },
+    getKeywords(categoryId) {
+      this.$http
+        .get(`/keywords?itemCategoryId=${categoryId}`)
+        .then(response => {
+          this.keywords = response.data;
+        });
     }
   },
   created() {
@@ -96,7 +116,13 @@ export default {
   },
   watch: {
     selectedCategory() {
-      this.recommendation.category = categories[this.selectedCategory];
+      this.recommendation.category = this.categories[this.selectedCategory];
+      this.getKeywords(this.recommendation.category.id);
+    },
+    selectedKeywords() {
+      this.recommendation.keywords = this.selectedKeywords.map(
+        keyword => this.keywords[keyword]
+      );
     }
   }
 };
