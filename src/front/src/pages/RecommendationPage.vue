@@ -13,7 +13,7 @@
         <h2 no-margin margin-start>{{ category.name }}</h2>
         <div scroll-x>
           <ion-card
-            v-for="recommendation in recommendations"
+            v-for="recommendation in recommendations[''+category.id]"
             :key="recommendation.id"
             @click="handleRecommendationDetailButtonClick(recommendation)"
           >
@@ -37,13 +37,14 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import NewRecommendationModal from "../components/NewRecommendationModal.vue";
 export default {
   name: "recommendation-page",
   data() {
     return {
       categories: [],
-      recommendations: []
+      recommendations: {}
     };
   },
   methods: {
@@ -70,9 +71,9 @@ export default {
           this.$http
             .get(`/recommendations?itemCategoryId=${category.id}`)
             .then(result => {
-              this.recommendations = result.data;
+              Vue.set(this.recommendations, category.id, result.data);
             });
-        })
+        });
       });
   }
 };
