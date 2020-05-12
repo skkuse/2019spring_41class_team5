@@ -15,6 +15,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -41,10 +43,29 @@ public class ReviewCrawlerService {
 
     private final VendorRepository vendorRepository;
 
-    public ReviewCrawlerService(VendorRepository vendorRepository) {
+    private final String os;
+    private final Boolean enableCrawler;
+    private final Boolean headless;
+    private final Integer maxPage;
+
+    public ReviewCrawlerService(VendorRepository vendorRepository,
+                                @Value("${environment.os}") String os,
+                                @Value("${debug.crawler.enable}") Boolean enableCrawler,
+                                @Value("${debug.crawler.headless}") Boolean headless,
+                                @Value("${debug.crawler.maxpage}") Integer maxPage) {
         this.vendorRepository = vendorRepository;
-        driver = initializeDriver();
-        crawlers = initializeCrawlers();
+        this.os = os;
+        this.enableCrawler = enableCrawler;
+        this.headless = headless;
+        this.maxPage = maxPage;
+
+        if (enableCrawler) {
+            driver = initializeDriver();
+            crawlers = initializeCrawlers();
+        } else {
+            driver = null;
+            crawlers = null;
+        }
     }
 
     /**
@@ -66,7 +87,7 @@ public class ReviewCrawlerService {
             List<RawReview> rawReviews = new ArrayList<>();
             synchronized (driver) {
                 driver.get(link.getReviewDetailUrl());
-                Integer pageSize = this.getPageSize();
+                Integer pageSize = Integer.min(this.getPageSize(), maxPage); // limit review size
                 int currentPage = 1;
                 while (currentPage++ < pageSize) {
                     try {
@@ -139,7 +160,7 @@ public class ReviewCrawlerService {
                                 .author(element.select(".a-profile-name").text())
                                 .content(element.select(".review-text-content span").text())
                                 .date(LocalDate.parse(
-                                        element.select(".review-date").text(),
+                                        element.select(".review-date").text().replaceAll("^.+on ", ""),
                                         DateTimeFormatter
                                                 .ofLocalizedDate(FormatStyle.LONG)
                                                 .withLocale(Locale.US)))
@@ -188,26 +209,27 @@ public class ReviewCrawlerService {
                                         DateTimeFormatter
                                                 .ofLocalizedDate(FormatStyle.LONG)
                                                 .withLocale(Locale.US)))
-                                .rating(Double.parseDouble(element.select(".stars-container").attr("alt").substring(0, 1)))
+                                .rating(Double.parseDouble(element.select(".stars-container").attr("aria-label").substring(0, 1)))
                                 .imageExists(!element.select(".review-media-thumbnail").isEmpty())
                                 .build())
                         .collect(Collectors.toList());
             }
         });
-
         return result;
     }
 
     private ChromeDriver initializeDriver() {
+        String driverFile = os.equals("windows") ? "chromedriver.exe" : "chromedriver";
         System.setProperty("webdriver.chrome.driver",
-                getClass()
+                Objects.requireNonNull(getClass()
                         .getClassLoader()
-                        .getResource("chromedriver")
+                        .getResource(driverFile), "Invalid chromedriver path")
                         .getPath());
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36");
-        options.setHeadless(true);
+        if (headless)
+            options.setHeadless(true);
 
         return new ChromeDriver(options);
     }
@@ -222,9 +244,10 @@ public class ReviewCrawlerService {
     public synchronized List<RawReview> doCrawlingReviews(List<VendorLink> vendorLinks) {
         List<RawReview> rawReviews = new ArrayList<>();
 
-        vendorLinks.parallelStream().forEach(link -> crawlers.forEach(crawler -> {
-            if (crawler.isCompatible(link)) rawReviews.addAll(crawler.doCrawling(link));
-        }));
+        if (enableCrawler)
+            vendorLinks.parallelStream().forEach(link -> crawlers.forEach(crawler -> {
+                if (crawler.isCompatible(link)) rawReviews.addAll(crawler.doCrawling(link));
+            }));
 
         return rawReviews;
     }
