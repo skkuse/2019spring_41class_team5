@@ -12,7 +12,7 @@ Included Chrome Driver Version: Windows, 81
 
 See: https://chromedriver.chromium.org/downloads
 
-## Appliation Run Parameters
+## Application Run Parameters
 
 `src/main/resources/application.properties`
 
